@@ -18,7 +18,15 @@ namespace RtAudioNet_Test_Suite
             InitializeComponent();
 
             RtAudio rtaudio = new RtAudio();
-            RtAudio.DeviceInfo info = new RtAudio.DeviceInfo();
+            List<RtAudio.Api> compileApis = RtAudio.getCompiledApi();
+
+            Console.WriteLine("Compiled Apis:");
+            foreach (RtAudio.Api api in compileApis)
+            {
+                Console.WriteLine("  {0}", api.ToString());
+            }
+
+            Console.WriteLine("Device Count: {0}", rtaudio.getDeviceCount());
         }
     }
 }

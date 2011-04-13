@@ -38,9 +38,6 @@ namespace RtAudioNet {
 									RtAudioStreamStatus status,
 									void *userData );
 
-	// Forward Declaration
-	ref class RtApi;
-
 	public ref class RtAudio
 	{
 	public:
@@ -74,6 +71,30 @@ namespace RtAudioNet {
 			// Default constructor.
 			DeviceInfo() : probed(false), outputChannels(0), inputChannels(0), duplexChannels(0),
 				isDefaultOutput(false), isDefaultInput(false), nativeFormats(0) {}
+
+			DeviceInfo(::RtAudio::DeviceInfo _info)
+			{
+				// Translate from the unmanaged instance to the managed instance
+				probed = _info.probed;
+				name = gcnew String(_info.name.c_str());;
+				outputChannels = _info.outputChannels;
+				inputChannels = _info.inputChannels;
+				duplexChannels = _info.duplexChannels;
+				isDefaultOutput = _info.isDefaultOutput;
+				isDefaultInput = _info.isDefaultInput;
+				nativeFormats = _info.nativeFormats;
+				
+				List<unsigned int>^ sampleRateList = gcnew List<unsigned int>();
+		
+				// Get the sample rates
+				for(std::vector<unsigned int>::iterator it = _info.sampleRates.begin(); it != _info.sampleRates.end(); ++it) 
+				{
+					sampleRateList->Add(*it);
+				} // end for
+				
+				// Set the sample rate to our converted list.
+				sampleRates.AddRange(sampleRateList);
+			} // end DefaultAudio
 		}; // end DeviceInfo
 		
 		// The structure for specifying input or ouput stream parameters.
@@ -100,7 +121,7 @@ namespace RtAudioNet {
 		};
 		
 		// A static function to determine the available compiled audio APIs.
-		static void getCompiledApi( List<RtAudio::Api> ^apis );
+		static List<RtAudio::Api>^ getCompiledApi();
 		
 		// The class constructor.
 		RtAudio();
@@ -127,19 +148,19 @@ namespace RtAudioNet {
 		unsigned int getDefaultInputDevice();
 		
 		// A public function for opening a stream with the specified parameters.
-		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat^ format, unsigned int sampleRate, 
+		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
 			unsigned int *bufferFrames, RtAudioCallback callback) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, NULL, gcnew RtAudio::StreamOptions());};
 		
 		// A public function for opening a stream with the specified parameters.
-		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat^ format, unsigned int sampleRate, 
+		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
 			unsigned int *bufferFrames, RtAudioCallback callback, void *userData) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, userData, gcnew RtAudio::StreamOptions());};
 		
 		// A public function for opening a stream with the specified parameters.
-		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat^ format, unsigned int sampleRate, 
+		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
 			unsigned int *bufferFrames, RtAudioCallback callback, RtAudio::StreamOptions^ options) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, NULL, options);};
 		
 		// A public function for opening a stream with the specified parameters.
-		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat^ format, unsigned int sampleRate, 
+		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
 			unsigned int *bufferFrames, RtAudioCallback callback, void *userData, RtAudio::StreamOptions^ options);
 		
 		// A function that closes a stream and frees any associated stream memory.
@@ -180,8 +201,14 @@ namespace RtAudioNet {
 		// Actual constructor. This is a work around for issues using default parameters in managed C++.
 		void initialize(RtAudio::Api api);
 
-		void openRtApi(RtAudio::Api api);
-		RtApi^ rtapi_;
+		// Converstion of StreamParameters^ to StreamParameters*
+		::RtAudio::StreamParameters* convertManagedToUnmanaged(RtAudio::StreamParameters^ _params);
+
+		// Converstion of StreamOptions^ to StreamOptions*
+		::RtAudio::StreamOptions* convertManagedToUnmanaged(RtAudio::StreamOptions^ _options);
+
+		// Actual RtAudio instance
+		::RtAudio* _rtaudio;
 
 	};
 
