@@ -38,6 +38,9 @@ namespace RtAudioNet {
 									RtAudioStreamStatus status,
 									void *userData );
 
+	// Forward Declaration
+	ref class RtApi;
+
 	public ref class RtAudio
 	{
 	public:
@@ -59,7 +62,7 @@ namespace RtAudioNet {
 		ref struct DeviceInfo 
 		{
 			bool probed;					// true if the device capabilities were successfully probed.
-			System::String^ name;			// Character string device identifier.
+			String^ name;			// Character string device identifier.
 			unsigned int outputChannels;	// Maximum output channels supported by device.
 			unsigned int inputChannels;		// Maximum input channels supported by device.
 			unsigned int duplexChannels;	// Maximum simultaneous input/output channels supported by device.
@@ -84,5 +87,105 @@ namespace RtAudioNet {
 			StreamParameters() : deviceId(0), nChannels(0), firstChannel(0) {}
 		}; // end StreamParameters
 
+		// The structure for specifying stream options.
+		ref struct StreamOptions 
+		{
+			RtAudioStreamFlags flags;		// A bit-mask of stream flags (RTAUDIO_NONINTERLEAVED, RTAUDIO_MINIMIZE_LATENCY, RTAUDIO_HOG_DEVICE, RTAUDIO_ALSA_USE_DEFAULT).
+			unsigned int numberOfBuffers;	// Number of stream buffers.
+			String^ streamName;				// A stream name (currently used only in Jack).
+			int priority;					// Scheduling priority of callback thread (only used with flag RTAUDIO_SCHEDULE_REALTIME).
+			
+			// Default constructor.
+			StreamOptions() : flags(0), numberOfBuffers(0), priority(0) {}
+		};
+		
+		// A static function to determine the available compiled audio APIs.
+		static void getCompiledApi( List<RtAudio::Api> ^apis );
+		
+		// The class constructor.
+		RtAudio();
+
+		// The class constructor.
+		RtAudio(RtAudio::Api api);
+
+		// The destructor.
+		~RtAudio();
+		
+		// Returns the audio API specifier for the current instance of RtAudio.
+		RtAudio::Api getCurrentApi();
+		
+		// A public function that queries for the number of audio devices available.
+		unsigned int getDeviceCount();
+		
+		// Return an RtAudio::DeviceInfo structure for a specified device number.
+		RtAudio::DeviceInfo^ getDeviceInfo(unsigned int device);
+		
+		// A function that returns the index of the default output device.
+		unsigned int getDefaultOutputDevice();
+		
+		// A function that returns the index of the default input device.
+		unsigned int getDefaultInputDevice();
+		
+		// A public function for opening a stream with the specified parameters.
+		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat^ format, unsigned int sampleRate, 
+			unsigned int *bufferFrames, RtAudioCallback callback) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, NULL, gcnew RtAudio::StreamOptions());};
+		
+		// A public function for opening a stream with the specified parameters.
+		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat^ format, unsigned int sampleRate, 
+			unsigned int *bufferFrames, RtAudioCallback callback, void *userData) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, userData, gcnew RtAudio::StreamOptions());};
+		
+		// A public function for opening a stream with the specified parameters.
+		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat^ format, unsigned int sampleRate, 
+			unsigned int *bufferFrames, RtAudioCallback callback, RtAudio::StreamOptions^ options) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, NULL, options);};
+		
+		// A public function for opening a stream with the specified parameters.
+		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat^ format, unsigned int sampleRate, 
+			unsigned int *bufferFrames, RtAudioCallback callback, void *userData, RtAudio::StreamOptions^ options);
+		
+		// A function that closes a stream and frees any associated stream memory.
+		void closeStream();
+		
+		// A function that starts a stream.
+		void startStream();
+		
+		// Stop a stream, allowing any samples remaining in the output queue to be played.
+		void stopStream();
+		
+		// Stop a stream, discarding any samples remaining in the input/output queue.
+		void abortStream();
+		
+		// Returns true if a stream is open and false if not.
+		bool isStreamOpen();
+		
+		// Returns true if the stream is running and false if it is stopped or not open.
+		bool isStreamRunning();
+		
+		// Returns the number of elapsed seconds since the stream was started.
+		double getStreamTime();
+		
+		// Returns the internal stream latency in sample frames.
+		long getStreamLatency();
+		
+		// Returns actual sample rate in use by the stream.
+		unsigned int getStreamSampleRate();
+		
+		// Specify whether warning messages should be printed to stderr.
+		void showWarnings() {showWarnings(true);};
+
+		// Specify whether warning messages should be printed to stderr.
+		void showWarnings(bool value);
+		
+	protected:
+		
+		// Actual constructor. This is a work around for issues using default parameters in managed C++.
+		void initialize(RtAudio::Api api);
+
+		void openRtApi(RtAudio::Api api);
+		RtApi^ rtapi_;
+
+	};
+
+	public ref class RtApi
+	{
 	};
 }
