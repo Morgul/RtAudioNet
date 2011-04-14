@@ -39,7 +39,9 @@ namespace RtAudioNet {
 									RtAudioStreamStatus status,
 									void *userData );*/
 
-	typedef Func<IntPtr, IntPtr, unsigned int, double, RtAudioStreamStatus, IntPtr, int> RtAudioCallback;
+	//typedef Func<IntPtr, IntPtr, unsigned int, double, RtAudioStreamStatus, IntPtr, int> RtAudioCallback;
+
+	public delegate int RtAudioNetCallback(IntPtr, IntPtr, unsigned int, double, RtAudioStreamStatus, IntPtr);
 
 	public ref class RtAudio
 	{
@@ -152,19 +154,19 @@ namespace RtAudioNet {
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			array<unsigned int>^ bufferFrames, RtAudioCallback^ callback) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, gcnew RtAudio::StreamOptions());};
+			array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, gcnew RtAudio::StreamOptions());};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			array<unsigned int>^ bufferFrames, RtAudioCallback^ callback, Object^ userData) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, userData, gcnew RtAudio::StreamOptions());};
+			array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback, Object^ userData) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, userData, gcnew RtAudio::StreamOptions());};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			array<unsigned int>^ bufferFrames, RtAudioCallback^ callback, RtAudio::StreamOptions^ options) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, options);};
+			array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback, RtAudio::StreamOptions^ options) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, options);};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			array<unsigned int>^ bufferFrames, RtAudioCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options);
+			array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options);
 		
 		// A function that closes a stream and frees any associated stream memory.
 		void closeStream();

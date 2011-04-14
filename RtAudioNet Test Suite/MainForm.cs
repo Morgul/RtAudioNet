@@ -60,17 +60,24 @@ namespace RtAudioNet_Test_Suite
 
         int loopbackCallback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, IntPtr dataPtr)
         {
+            Console.WriteLine("Callback Called.");
             return 0;
         }
 
         private void startLoopback_Click(object sender, EventArgs e)
         {
             RtAudio.StreamParameters inputParams = new RtAudio.StreamParameters();
+            inputParams.deviceId = 0;
+            inputParams.nChannels = 2;
+
             RtAudio.StreamParameters outputParams = new RtAudio.StreamParameters();
+            outputParams.deviceId = 0;
+            inputParams.nChannels = 2;
+            
             RtAudio.StreamOptions options = new RtAudio.StreamOptions();
             uint[] buff = new uint[512];
 
-            audio.openStream(outputParams, inputParams, 0, 0, buff, loopbackCallback, options);
+            audio.openStream(outputParams, inputParams, 0x8, 44100, buff, loopbackCallback);
         } // end startLoopback_Click
 
     }

@@ -85,7 +85,7 @@ namespace RtAudioNet
 	
 	// A public function for opening a stream with the specified parameters.
 	void RtAudio::openStream(RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, 
-		unsigned int sampleRate, array<unsigned int>^ bufferFrames, RtAudioCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options)
+		unsigned int sampleRate, array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options)
 	{
 		// Painful conversion code
 		GCHandle handle = GCHandle::Alloc(userData);
@@ -186,8 +186,14 @@ namespace RtAudioNet
 		options->numberOfBuffers = _options->numberOfBuffers;
 
 		// Convert streamName
-		String^ name = gcnew String(_options->streamName);
-		std::string streamName(marshal_as<std::string>(name));
+		std::string streamName;
+		
+		if(_options->streamName != nullptr)
+		{
+			String^ name = gcnew String(_options->streamName);
+			streamName = marshal_as<std::string>(name);
+		} // end if
+
 		options->streamName = streamName;
 		
 		options->priority = _options->priority;
