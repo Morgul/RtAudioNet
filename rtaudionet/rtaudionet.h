@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "RtErrorNet.h"
 #include "RtAudio\RtAudio.h"
 
 using namespace System;

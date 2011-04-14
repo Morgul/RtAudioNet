@@ -14,25 +14,28 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="rtaudionet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RtAudio\RtAudio.h">
       <Filter>RtAudio</Filter>
     </ClInclude>
     <ClInclude Include="RtAudio\RtError.h">
       <Filter>RtAudio</Filter>
     </ClInclude>
+    <ClInclude Include="RtAudioNet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RtErrorNet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="rtaudionet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AssemblyInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RtAudio\RtAudio.cpp">
       <Filter>RtAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="RtAudioNet.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
