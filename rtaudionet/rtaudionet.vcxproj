@@ -76,13 +76,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="rtaudionet.h" />
+    <ClInclude Include="RtAudioNet.h" />
     <ClInclude Include="RtAudio\RtAudio.h" />
     <ClInclude Include="RtAudio\RtError.h" />
+    <ClInclude Include="RtErrorNet.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
-    <ClCompile Include="rtaudionet.cpp" />
+    <ClCompile Include="RtAudioNet.cpp" />
     <ClCompile Include="RtAudio\RtAudio.cpp" />
   </ItemGroup>
   <ItemGroup>
