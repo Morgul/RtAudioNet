@@ -12,6 +12,9 @@
     <Filter Include="RtAudio">
       <UniqueIdentifier>{a7698148-86e9-4c2f-951d-7a90a0f7a33e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RtAudio\include">
+      <UniqueIdentifier>{0034ec79-c117-435e-bbe0-7bee190ee404}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RtAudio\RtAudio.h">
@@ -26,6 +29,36 @@
     <ClInclude Include="RtErrorNet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RtAudio\include\asio.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\iasiothiscallresolver.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\asiodrivers.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\asiodrvr.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\asiolist.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\asiosys.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\dsound.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\ginclude.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\iasiodrv.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="RtAudio\include\soundcard.h">
+      <Filter>RtAudio\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -36,6 +69,18 @@
     </ClCompile>
     <ClCompile Include="RtAudioNet.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RtAudio\include\asio.cpp">
+      <Filter>RtAudio\include</Filter>
+    </ClCompile>
+    <ClCompile Include="RtAudio\include\asiodrivers.cpp">
+      <Filter>RtAudio\include</Filter>
+    </ClCompile>
+    <ClCompile Include="RtAudio\include\asiolist.cpp">
+      <Filter>RtAudio\include</Filter>
+    </ClCompile>
+    <ClCompile Include="RtAudio\include\iasiothiscallresolver.cpp">
+      <Filter>RtAudio\include</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -21,7 +21,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CLRSupport>true</CLRSupport>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -41,6 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)RtAudio\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -49,13 +50,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;__WINDOWS_DS__;__WINDOWS_ASIO__;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>user32.lib;ole32.lib;advapi32.lib;dsound.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -77,6 +77,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RtAudioNet.h" />
+    <ClInclude Include="RtAudio\include\asio.h" />
+    <ClInclude Include="RtAudio\include\asiodrivers.h" />
+    <ClInclude Include="RtAudio\include\asiodrvr.h" />
+    <ClInclude Include="RtAudio\include\asiolist.h" />
+    <ClInclude Include="RtAudio\include\asiosys.h" />
+    <ClInclude Include="RtAudio\include\dsound.h" />
+    <ClInclude Include="RtAudio\include\ginclude.h" />
+    <ClInclude Include="RtAudio\include\iasiodrv.h" />
+    <ClInclude Include="RtAudio\include\iasiothiscallresolver.h" />
+    <ClInclude Include="RtAudio\include\soundcard.h" />
     <ClInclude Include="RtAudio\RtAudio.h" />
     <ClInclude Include="RtAudio\RtError.h" />
     <ClInclude Include="RtErrorNet.h" />
@@ -84,6 +94,10 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="RtAudioNet.cpp" />
+    <ClCompile Include="RtAudio\include\asio.cpp" />
+    <ClCompile Include="RtAudio\include\asiodrivers.cpp" />
+    <ClCompile Include="RtAudio\include\asiolist.cpp" />
+    <ClCompile Include="RtAudio\include\iasiothiscallresolver.cpp" />
     <ClCompile Include="RtAudio\RtAudio.cpp" />
   </ItemGroup>
   <ItemGroup>
