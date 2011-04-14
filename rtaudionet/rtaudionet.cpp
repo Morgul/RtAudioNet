@@ -6,6 +6,7 @@
 #include "rtaudionet.h"
 
 using namespace msclr::interop;
+using namespace System::Runtime::InteropServices;
 
 namespace RtAudioNet
 {
@@ -84,9 +85,17 @@ namespace RtAudioNet
 	
 	// A public function for opening a stream with the specified parameters.
 	void RtAudio::openStream(RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, 
-		unsigned int sampleRate, unsigned int *bufferFrames, RtAudioCallback callback, void *userData, RtAudio::StreamOptions^ options)
+		unsigned int sampleRate, array<unsigned int>^ bufferFrames, RtAudioCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options)
 	{
-		_rtaudio->openStream(convertManagedToUnmanaged(outputParameters), convertManagedToUnmanaged(inputParameters), format, sampleRate, bufferFrames, callback, userData, convertManagedToUnmanaged(options));
+		// Painful conversion code
+		GCHandle handle = GCHandle::Alloc(userData);
+		pin_ptr<unsigned int> bFramesPtr = &bufferFrames[0];
+
+		// Call the unmanaged function
+		_rtaudio->openStream(convertManagedToUnmanaged(outputParameters), convertManagedToUnmanaged(inputParameters), format, sampleRate,  bFramesPtr, (::RtAudioCallback) (void*) Marshal::GetFunctionPointerForDelegate(callback), GCHandle::ToIntPtr(handle).ToPointer(), convertManagedToUnmanaged(options));
+
+		// Cleanup from the painful conversion code.
+		handle.Free();
 	} // end openStream
 	
 	// A function that closes a stream and frees any associated stream memory.
