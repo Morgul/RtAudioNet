@@ -178,9 +178,19 @@ namespace RtAudioNet
 	{
 		::RtAudio::StreamParameters* params = new ::RtAudio::StreamParameters();
 
+		Console::WriteLine("Managed Parameters:");
+		Console::WriteLine("    deviceId: {0}", _params->deviceId);
+		Console::WriteLine("    nChannels: {0}", _params->nChannels);
+		Console::WriteLine("    firstChannel: {0}", _params->nChannels);
+
 		params->deviceId = _params->deviceId;
 		params->nChannels = _params->nChannels;
 		params->firstChannel = _params->firstChannel;
+
+		Console::WriteLine("Unmanaged Parameters:");
+		Console::WriteLine("    deviceId: {0}", params->deviceId);
+		Console::WriteLine("    nChannels: {0}", params->nChannels);
+		Console::WriteLine("    firstChannel: {0}", params->nChannels);
 		
 		return params;
 	} // end convertManagedToUnmanaged
