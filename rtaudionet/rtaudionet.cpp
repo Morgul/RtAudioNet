@@ -95,7 +95,7 @@ namespace RtAudioNet
 		try
 		{
     		// Call the unmanaged function
-    		_rtaudio->openStream(convertManagedToUnmanaged(outputParameters), convertManagedToUnmanaged(inputParameters), format, sampleRate, &bufferFrames, &audioCallback, static_cast<IntPtr>(handle).ToPointer(), convertManagedToUnmanaged(options));
+    		_rtaudio->openStream(convertManagedToUnmanaged(outputParameters), convertManagedToUnmanaged(inputParameters), (int) format, sampleRate, &bufferFrames, &audioCallback, static_cast<IntPtr>(handle).ToPointer(), convertManagedToUnmanaged(options));
 		}
         catch (::RtError &exception)
 		{

@@ -129,7 +129,7 @@ namespace RtAudioNet_Test_Suite
 
                 userData = "This is my User Data!";
 
-                audio.openStream(outputParams, inputParams, 0x8, 44100, frames, loopbackCallback, userData);
+                audio.openStream(outputParams, inputParams, RtAudioFormat.RTAUDIO_SINT32, 44100, frames, loopbackCallback, userData);
 
                 // Change button text
                 startLoopback.Text = "Stop Loopback";
