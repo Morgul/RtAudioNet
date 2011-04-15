@@ -38,7 +38,7 @@ namespace RtAudioNet
 	// with ::RtError. When an ::RtError is returned, the class would call throwError, and the correct
 	// event will fire. User's code would handle the events, without being aware of the underlying 
 	// ::RtError class, or this mechanic
-	ref class RtError
+	public ref class RtError
 	{
 	public:
 		event EventHandler<RtErrorEventArgs^>^ rtErrorWarning;
