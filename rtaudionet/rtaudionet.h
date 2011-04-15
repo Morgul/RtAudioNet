@@ -41,7 +41,7 @@ namespace RtAudioNet {
 
 	//typedef Func<IntPtr, IntPtr, unsigned int, double, RtAudioStreamStatus, IntPtr, int> RtAudioCallback;
 
-	public delegate int RtAudioNetCallback(IntPtr, IntPtr, unsigned int, double, RtAudioStreamStatus, IntPtr);
+	public delegate int RtAudioNetCallback(IntPtr, IntPtr, unsigned int, double, RtAudioStreamStatus, Object^);
 
 	public ref class RtAudio : RtError
 	{
@@ -154,19 +154,19 @@ namespace RtAudioNet {
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, gcnew RtAudio::StreamOptions());};
+			unsigned int bufferFrames, RtAudioNetCallback^ callback) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, gcnew RtAudio::StreamOptions());};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback, Object^ userData) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, userData, gcnew RtAudio::StreamOptions());};
+			unsigned int bufferFrames, RtAudioNetCallback^ callback, Object^ userData) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, userData, gcnew RtAudio::StreamOptions());};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback, RtAudio::StreamOptions^ options) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, options);};
+			unsigned int bufferFrames, RtAudioNetCallback^ callback, RtAudio::StreamOptions^ options) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, options);};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options);
+			unsigned int bufferFrames, RtAudioNetCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options);
 		
 		// A function that closes a stream and frees any associated stream memory.
 		void closeStream();
@@ -201,6 +201,15 @@ namespace RtAudioNet {
 		// Specify whether warning messages should be printed to stderr.
 		void showWarnings(bool value);
 		
+		// Frames being used in the stream
+		unsigned int frames;
+
+		// Callback
+		RtAudioNetCallback^ _callback;
+
+		// Callback
+		Object^ userData;
+
 	protected:
 		
 		// Actual constructor. This is a work around for issues using default parameters in managed C++.
@@ -217,18 +226,6 @@ namespace RtAudioNet {
 
 	};
 
-	// This global structure type is used to pass callback information
-	// between the private RtAudio stream structure and global callback
-	// handling functions.
-	ref struct CallbackInfo {
-		void *object;			// Used as a "this" pointer.
-		ThreadHandle thread;
-		void *callback;
-		void *userData;
-		void *apiInfo;			// void pointer for API specific callback information
-		bool isRunning;
-		
-		// Default constructor.
-		CallbackInfo() : object(0), callback(0), userData(0), apiInfo(0), isRunning(false) {}
-	};
+	// Internal Callback
+	int audioCallback(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData);
 } // end namespace

@@ -50,6 +50,8 @@ namespace RtAudioNet
 	RtAudio::~RtAudio()
 	{
 		delete _rtaudio;
+		// Cleanup GCHandle
+		//handle.Free();
 	} // end ~RtAudio
 	
 	// Returns the audio API specifier for the current instance of RtAudio.
@@ -85,24 +87,29 @@ namespace RtAudioNet
 	
 	// A public function for opening a stream with the specified parameters.
 	void RtAudio::openStream(RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, 
-		unsigned int sampleRate, array<unsigned int>^ bufferFrames, RtAudioNetCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options)
+		unsigned int sampleRate, unsigned int bufferFrames, RtAudioNetCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options)
 	{
 		// Painful conversion code
-		GCHandle handle = GCHandle::Alloc(userData);
-		pin_ptr<unsigned int> bFramesPtr = &bufferFrames[0];
+		GCHandle handle = GCHandle::Alloc(this, GCHandleType::Normal);
 
 		try
 		{
     		// Call the unmanaged function
-    		_rtaudio->openStream(convertManagedToUnmanaged(outputParameters), convertManagedToUnmanaged(inputParameters), format, sampleRate,  bFramesPtr, (::RtAudioCallback) (void*) Marshal::GetFunctionPointerForDelegate(callback), GCHandle::ToIntPtr(handle).ToPointer(), convertManagedToUnmanaged(options));
+    		_rtaudio->openStream(convertManagedToUnmanaged(outputParameters), convertManagedToUnmanaged(inputParameters), format, sampleRate, &bufferFrames, &audioCallback, static_cast<IntPtr>(handle).ToPointer(), convertManagedToUnmanaged(options));
 		}
         catch (::RtError &exception)
 		{
 			throwError(&exception);
 		} // end try/catch
 
-		// Cleanup from the painful conversion code.
-		handle.Free();
+		// Set frames --This is to work around inability to pass by reference to C#.
+		frames = bufferFrames;
+
+		// Set our callback to the delegate we got from the caller.
+		_callback = callback;
+
+		//Set userData
+		this->userData = userData;
 	} // end openStream
 	
 	// A function that closes a stream and frees any associated stream memory.
@@ -171,6 +178,7 @@ namespace RtAudioNet
 	void RtAudio::initialize(RtAudio::Api api)
 	{
 		_rtaudio = new ::RtAudio(::RtAudio::Api(int(api)));
+		frames = 0;
 	} // end initialize
 
 	// Converstion of StreamParameters^ to StreamParameters*
@@ -178,19 +186,9 @@ namespace RtAudioNet
 	{
 		::RtAudio::StreamParameters* params = new ::RtAudio::StreamParameters();
 
-		Console::WriteLine("Managed Parameters:");
-		Console::WriteLine("    deviceId: {0}", _params->deviceId);
-		Console::WriteLine("    nChannels: {0}", _params->nChannels);
-		Console::WriteLine("    firstChannel: {0}", _params->nChannels);
-
 		params->deviceId = _params->deviceId;
 		params->nChannels = _params->nChannels;
 		params->firstChannel = _params->firstChannel;
-
-		Console::WriteLine("Unmanaged Parameters:");
-		Console::WriteLine("    deviceId: {0}", params->deviceId);
-		Console::WriteLine("    nChannels: {0}", params->nChannels);
-		Console::WriteLine("    firstChannel: {0}", params->nChannels);
 		
 		return params;
 	} // end convertManagedToUnmanaged
@@ -218,4 +216,19 @@ namespace RtAudioNet
 		return options;
 	} // end convertManagedToUnmanaged
 
+	//////////////////////////////////////////////////////////////////////////
+	/// Audio Callback
+
+	int audioCallback(void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void *userData)
+	{
+		// We've stored a pointer to the instance of our managed RtAudio class in the userData.
+		// This will retrieve it, and cast it appropriately.
+		GCHandle instHandle = GCHandle::FromIntPtr(IntPtr(userData));
+		RtAudio^ instance = (RtAudio^) instHandle.Target;
+
+		// Call the callback registered with the instance.
+		instance->_callback(IntPtr(outputBuffer), IntPtr(inputBuffer), nBufferFrames, streamTime, status, instance->userData);
+
+		return 0;
+	} // end audioCallback
 } // end namespace
