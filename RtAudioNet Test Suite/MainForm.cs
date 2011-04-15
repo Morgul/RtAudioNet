@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using RtAudioNet;
+using System.Runtime.InteropServices;
 
 namespace RtAudioNet_Test_Suite
 {
@@ -15,6 +16,8 @@ namespace RtAudioNet_Test_Suite
     {
         private RtAudio audio = null;
         private bool streamRunning = false;
+
+        private string userData = null;
 
         public MainForm()
         {
@@ -34,7 +37,6 @@ namespace RtAudioNet_Test_Suite
             audio.rtErrorWarning += new EventHandler<RtErrorEventArgs>(handleRtError); 
 
             List<RtAudio.Api> compileApis = RtAudio.getCompiledApi();
-            List<RtAudio.DeviceInfo> availableDevices = new List<RtAudio.DeviceInfo>();
 
             // List the currently compiled APIs.
             Console.WriteLine("Compiled Apis:");
@@ -51,9 +53,8 @@ namespace RtAudioNet_Test_Suite
             for (uint idx = 0; deviceCount > idx; idx++)
             {
                 RtAudio.DeviceInfo info = audio.getDeviceInfo(idx);
-                availableDevices.Add(info);
 
-                Console.WriteLine("{0}:", info.name);
+                Console.WriteLine("ID {1}: {0}:", info.name, idx);
                 Console.WriteLine("    InputChannels: {0}", info.inputChannels);
                 Console.WriteLine("    OutputChannels: {0}", info.outputChannels);
                 Console.WriteLine("    DuplexChannels: {0}", info.duplexChannels);
@@ -77,9 +78,17 @@ namespace RtAudioNet_Test_Suite
             Console.WriteLine("[RtError] {0}", error.Message);
         } // end handleRtError
 
-        int loopbackCallback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, IntPtr dataPtr)
+        int loopbackCallback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, Object userData)
         {
-            Console.WriteLine("Callback Called.");
+            // Just testing to make sure we can get the user data.
+            String data = userData as String;
+
+            int size = (int) audio.frames * 2 * 4; // Frames per sample * channels * bytes in an int
+            byte[] bytes = new byte[size];
+            
+            // Copy the input to the output
+            Marshal.Copy(inputBufferPtr, bytes, 0, size);
+            Marshal.Copy(bytes, 0, outputBufferPtr, size);
             return 0;
         }
 
@@ -87,18 +96,40 @@ namespace RtAudioNet_Test_Suite
         {
             if (streamRunning == false)
             {
+                uint inputID = 0, outputID = 0;
+
+                string selectedInput = inputCombo.SelectedItem as String;
+                string selectedOutput = outputCombo.SelectedItem as String;
+
+                for (uint idx = 0; audio.getDeviceCount() > idx; idx++)
+                {
+                    RtAudio.DeviceInfo info = audio.getDeviceInfo(idx);
+
+                    if (info.name.Contains(selectedInput))
+                    {
+                        inputID = idx;
+                    } // end if
+
+                    if (info.name.Contains(selectedOutput))
+                    {
+                        outputID = idx;
+                    } // end if
+                } // end for
+
                 RtAudio.StreamParameters inputParams = new RtAudio.StreamParameters();
-                inputParams.deviceId = 0;
+                inputParams.deviceId = inputID;
                 inputParams.nChannels = 2;
 
                 RtAudio.StreamParameters outputParams = new RtAudio.StreamParameters();
-                outputParams.deviceId = 0;
+                outputParams.deviceId = outputID;
                 outputParams.nChannels = 2;
 
                 RtAudio.StreamOptions options = new RtAudio.StreamOptions();
-                uint[] buff = new uint[512];
+                uint frames = 512;
 
-                audio.openStream(outputParams, inputParams, 0x8, 44100, buff, loopbackCallback);
+                userData = "This is my User Data!";
+
+                audio.openStream(outputParams, inputParams, 0x8, 44100, frames, loopbackCallback, userData);
 
                 // Change button text
                 startLoopback.Text = "Stop Loopback";
@@ -110,6 +141,8 @@ namespace RtAudioNet_Test_Suite
             else
             {
                 audio.stopStream();
+                audio.closeStream();
+                streamRunning = false;
 
                 startLoopback.Text = "Start Loopback";
             } // end if
