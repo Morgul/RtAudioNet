@@ -43,7 +43,7 @@ namespace RtAudioNet {
 
 	public delegate int RtAudioNetCallback(IntPtr, IntPtr, unsigned int, double, RtAudioStreamStatus, IntPtr);
 
-	public ref class RtAudio
+	public ref class RtAudio : RtError
 	{
 	public:
 

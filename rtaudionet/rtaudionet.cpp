@@ -91,8 +91,15 @@ namespace RtAudioNet
 		GCHandle handle = GCHandle::Alloc(userData);
 		pin_ptr<unsigned int> bFramesPtr = &bufferFrames[0];
 
-		// Call the unmanaged function
-		_rtaudio->openStream(convertManagedToUnmanaged(outputParameters), convertManagedToUnmanaged(inputParameters), format, sampleRate,  bFramesPtr, (::RtAudioCallback) (void*) Marshal::GetFunctionPointerForDelegate(callback), GCHandle::ToIntPtr(handle).ToPointer(), convertManagedToUnmanaged(options));
+		try
+		{
+    		// Call the unmanaged function
+    		_rtaudio->openStream(convertManagedToUnmanaged(outputParameters), convertManagedToUnmanaged(inputParameters), format, sampleRate,  bFramesPtr, (::RtAudioCallback) (void*) Marshal::GetFunctionPointerForDelegate(callback), GCHandle::ToIntPtr(handle).ToPointer(), convertManagedToUnmanaged(options));
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+		} // end try/catch
 
 		// Cleanup from the painful conversion code.
 		handle.Free();

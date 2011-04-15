@@ -19,6 +19,18 @@ namespace RtAudioNet_Test_Suite
             InitializeComponent();
 
             audio = new RtAudio();
+            audio.rtErrorDebugWarning += new EventHandler<RtErrorEventArgs>(handleRtError);
+            audio.rtErrorDriverError += new EventHandler<RtErrorEventArgs>(handleRtError); 
+            audio.rtErrorInvalidDevice += new EventHandler<RtErrorEventArgs>(handleRtError);
+            audio.rtErrorInvalidParameter += new EventHandler<RtErrorEventArgs>(handleRtError); 
+            audio.rtErrorInvalidUse += new EventHandler<RtErrorEventArgs>(handleRtError); 
+            audio.rtErrorMemoryError += new EventHandler<RtErrorEventArgs>(handleRtError); 
+            audio.rtErrorNoDevicesFound += new EventHandler<RtErrorEventArgs>(handleRtError); 
+            audio.rtErrorSystemError += new EventHandler<RtErrorEventArgs>(handleRtError); 
+            audio.rtErrorThreadError += new EventHandler<RtErrorEventArgs>(handleRtError); 
+            audio.rtErrorUnspecified += new EventHandler<RtErrorEventArgs>(handleRtError);
+            audio.rtErrorWarning += new EventHandler<RtErrorEventArgs>(handleRtError); 
+
             List<RtAudio.Api> compileApis = RtAudio.getCompiledApi();
             List<RtAudio.DeviceInfo> availableDevices = new List<RtAudio.DeviceInfo>();
 
@@ -57,6 +69,11 @@ namespace RtAudioNet_Test_Suite
                 } // end if
             } // end for
         }
+
+        void handleRtError(object sender, RtErrorEventArgs error)
+        {
+            Console.WriteLine("[RtError] {0}", error.Message);
+        } // end handleRtError
 
         int loopbackCallback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, IntPtr dataPtr)
         {
