@@ -14,6 +14,8 @@ namespace RtAudioNet_Test_Suite
     public partial class MainForm : Form
     {
         private RtAudio audio = null;
+        private bool streamRunning = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -83,18 +85,34 @@ namespace RtAudioNet_Test_Suite
 
         private void startLoopback_Click(object sender, EventArgs e)
         {
-            RtAudio.StreamParameters inputParams = new RtAudio.StreamParameters();
-            inputParams.deviceId = 0;
-            inputParams.nChannels = 2;
+            if (streamRunning == false)
+            {
+                RtAudio.StreamParameters inputParams = new RtAudio.StreamParameters();
+                inputParams.deviceId = 0;
+                inputParams.nChannels = 2;
 
-            RtAudio.StreamParameters outputParams = new RtAudio.StreamParameters();
-            outputParams.deviceId = 0;
-            inputParams.nChannels = 2;
-            
-            RtAudio.StreamOptions options = new RtAudio.StreamOptions();
-            uint[] buff = new uint[512];
+                RtAudio.StreamParameters outputParams = new RtAudio.StreamParameters();
+                outputParams.deviceId = 0;
+                outputParams.nChannels = 2;
 
-            audio.openStream(outputParams, inputParams, 0x8, 44100, buff, loopbackCallback);
+                RtAudio.StreamOptions options = new RtAudio.StreamOptions();
+                uint[] buff = new uint[512];
+
+                audio.openStream(outputParams, inputParams, 0x8, 44100, buff, loopbackCallback);
+
+                // Change button text
+                startLoopback.Text = "Stop Loopback";
+                streamRunning = true;
+
+                // Start the stream
+                audio.startStream();
+            }
+            else
+            {
+                audio.stopStream();
+
+                startLoopback.Text = "Start Loopback";
+            } // end if
         } // end startLoopback_Click
 
     }
