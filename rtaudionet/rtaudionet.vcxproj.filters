@@ -59,6 +59,9 @@
     <ClInclude Include="RtAudio\include\soundcard.h">
       <Filter>RtAudio\include</Filter>
     </ClInclude>
+    <ClInclude Include="RtWaveStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -82,8 +85,11 @@
     <ClCompile Include="RtAudio\include\iasiothiscallresolver.cpp">
       <Filter>RtAudio\include</Filter>
     </ClCompile>
+    <ClCompile Include="RtWaveStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
+    <None Include="LICENSE.txt" />
   </ItemGroup>
 </Project>
