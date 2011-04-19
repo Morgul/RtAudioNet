@@ -1,4 +1,4 @@
-﻿#region License
+#pragma region License
 /*
  * Copyright (c) 2011 Christopher S. Case
 
@@ -20,26 +20,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#endregion
+#pragma endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
+#include "RtWaveStream.h"
 
-namespace RtAudioNet_Test_Suite
+namespace RtAudioStream
 {
-    static class Program
-    {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
-        }
-    }
-}
+	RtWaveStream::RtWaveStream()
+	{
+		rtaudio = gcnew ::RtAudioNet::RtAudio();
+		buffer = gcnew array<unsigned char>(4096);
+	} // end RtWaveStream
+	
+	// Read class required by the stream base class.
+	int RtWaveStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
+	{
+		return 0;
+	}
+	
+	// Write class required by the stream base class.
+	void RtWaveStream::Write(array<unsigned char>^ buffer, int offset, int count)
+	{
+	}
+} // end namespace

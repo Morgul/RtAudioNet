@@ -90,6 +90,7 @@
     <ClInclude Include="RtAudio\RtAudio.h" />
     <ClInclude Include="RtAudio\RtError.h" />
     <ClInclude Include="RtErrorNet.h" />
+    <ClInclude Include="RtWaveStream.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
@@ -99,9 +100,10 @@
     <ClCompile Include="RtAudio\include\asiolist.cpp" />
     <ClCompile Include="RtAudio\include\iasiothiscallresolver.cpp" />
     <ClCompile Include="RtAudio\RtAudio.cpp" />
+    <ClCompile Include="RtWaveStream.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
+    <None Include="LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
