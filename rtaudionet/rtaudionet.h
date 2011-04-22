@@ -36,6 +36,7 @@ namespace RtAudioNet {
     // RtAudio data format type.
 	public enum class RtAudioFormat
 	{
+		RTAUDIO_NULL = 0x0,			// Null Audio Format.
 		RTAUDIO_SINT8 = 0x1,		// 8-bit signed integer.
 		RTAUDIO_SINT16 = 0x2,		// 16-bit signed integer.
 		RTAUDIO_SINT24 = 0x4,		// Lower 3 bytes of 32-bit signed integer.
