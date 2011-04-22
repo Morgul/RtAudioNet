@@ -59,6 +59,7 @@ namespace RtStream
 	{
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		buffer = gcnew array<unsigned char>(4096);
+		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 
 		// Set stream properties
 		_canRead = true;
@@ -69,8 +70,46 @@ namespace RtStream
 	// Selects the correct input device
 	void RtInputStream::selectInputDevice(int devID)
 	{
+		inputStreamParams->deviceId = devID;
+		inputStreamParams->nChannels = Format->channels;
 	} // end selectInputDevice
 
+	// Selects the correct input device
+	void RtInputStream::selectInputDevice(String^ devString)
+	{
+		unsigned int devID = 0;
+
+		for (unsigned int idx = 0; rtaudio->getDeviceCount() > idx; idx++)
+		{
+			::RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(idx);
+
+			if (info->name->Contains(devString))
+			{
+				devID = idx;
+			} // end if
+		} // end for
+
+		selectInputDevice(devID);
+	} // end selectInputDevice
+
+	// Opens the stream
+	void RtInputStream::Open()
+	{
+		rtaudio->openStream(nullptr, inputStreamParams, Format->type, Format->sampleRate, 0, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtInputStream::callback));
+	} // end Open
+
+	// Starts the stream
+	void RtInputStream::Start()
+	{
+		rtaudio->startStream();
+	} // end Start
+
+	// Stops the stream
+	void RtInputStream::Stop()
+	{
+		rtaudio->stopStream();
+	} // end Stop
+	
 	// Read class required by the stream base class.
 	int RtInputStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
 	{
@@ -87,6 +126,21 @@ namespace RtStream
 	{
 		return true;
 	} // end write
+	int RtInputStream::callback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, unsigned int frames, double streamTime, ::RtAudioNet::RtAudioStreamStatus status, Object^ userData)
+	{
+		// Create our temporary buffer
+		unsigned int bytesToCopy = frames * Format->channels * (Format->bitsPerSample / 8);
+		array<unsigned char>^ buffer = gcnew array<unsigned char>(bytesToCopy);
+
+		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?
+		Marshal::Copy(inputBufferPtr, buffer, 0, bytesToCopy);
+
+		// And now, we add out temp buffer to our main buffer.
+		// Yeah, ok, no internal buffer yet.
+
+		// We always return zero.
+		return 0;
+	} // end callback
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -96,6 +150,7 @@ namespace RtStream
 	{
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		buffer = gcnew array<unsigned char>(4096);
+		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 
 		// Set stream properties
 		_canRead = false;
@@ -103,11 +158,46 @@ namespace RtStream
 		_canSeek = false;
 	} // end RtWaveStream
 	
-	// Selects the correct input device
+	// Selects the correct output device
 	void RtOutputStream::selectOutputDevice(int devID)
 	{
-	} // end selectInputDevice
+		outputStreamParams->deviceId = devID;
+		outputStreamParams->nChannels = Format->channels;
+	} // end selectOutputDevice
 
+	// Selects the correct output device
+	void RtOutputStream::selectOutputDevice(String^ devString)
+	{
+		unsigned int devID = 0;
+
+		for (unsigned int idx = 0; rtaudio->getDeviceCount() > idx; idx++)
+		{
+			::RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(idx);
+
+			if (info->name->Contains(devString))
+			{
+				devID = idx;
+			} // end if
+		} // end for
+
+		selectOutputDevice(devID);
+	} // end selectOutputDevice
+
+	// Opens the stream
+	void RtOutputStream::Open()
+	{
+	} // end Open
+
+	// Starts the stream
+	void RtOutputStream::Start()
+	{
+	} // end Start
+
+	// Stops the stream
+	void RtOutputStream::Stop()
+	{
+	} // end Stop
+	
 	// Read class required by the stream base class.
 	int RtOutputStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
 	{
@@ -133,6 +223,8 @@ namespace RtStream
 	{
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		buffer = gcnew array<unsigned char>(4096);
+		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
+		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 
 		// Set stream properties
 		_canRead = true;
@@ -140,11 +232,44 @@ namespace RtStream
 		_canSeek = false;
 	} // end RtWaveStream
 	
-	// Selects the correct input device
+	// Selects the correct output device
 	void RtDuplexStream::selectOutputDevice(int devID)
 	{
-	} // end selectInputDevice
+	} // end selectOutputDevice
 
+	// Selects the correct output device
+	void RtDuplexStream::selectOutputDevice(String^ devString)
+	{
+		unsigned int devID = 0;
+
+		for (unsigned int idx = 0; rtaudio->getDeviceCount() > idx; idx++)
+		{
+			::RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(idx);
+
+			if (info->name->Contains(devString))
+			{
+				devID = idx;
+			} // end if
+		} // end for
+
+		selectOutputDevice(devID);
+	} // end selectOutputDevice
+
+	// Opens the stream
+	void RtDuplexStream::Open()
+	{
+	} // end Open
+
+	// Starts the stream
+	void RtDuplexStream::Start()
+	{
+	} // end Start
+
+	// Stops the stream
+	void RtDuplexStream::Stop()
+	{
+	} // end Stop
+	
 	// Read class required by the stream base class.
 	int RtDuplexStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
 	{

@@ -76,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Circular Buffer\circular.h" />
     <ClInclude Include="RtAudioNet.h" />
     <ClInclude Include="RtAudio\include\asio.h" />
     <ClInclude Include="RtAudio\include\asiodrivers.h" />
