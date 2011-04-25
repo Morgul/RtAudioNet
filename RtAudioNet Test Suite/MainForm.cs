@@ -36,6 +36,7 @@ using RtStream;
 
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Threading;
 
 namespace RtAudioNet_Test_Suite
 {
@@ -43,6 +44,8 @@ namespace RtAudioNet_Test_Suite
     {
         private RtAudio audio = null;
         private RtDuplexStream duplexStream = null;
+        private RtInputStream inputStream = null;
+        private RtOutputStream outputStream = null;
         private bool streamRunning = false;
 
         public MainForm()
@@ -142,14 +145,14 @@ namespace RtAudioNet_Test_Suite
         {
             if (streamRunning == false)
             {
-                uint inputID = 0, outputID = 0;
+                int inputID = 0, outputID = 0;
 
                 string selectedInput = inputCombo.SelectedItem as String;
                 string selectedOutput = outputCombo.SelectedItem as String;
 
-                for (uint idx = 0; audio.getDeviceCount() > idx; idx++)
+                for (int idx = 0; audio.getDeviceCount() > idx; idx++)
                 {
-                    RtAudio.DeviceInfo info = audio.getDeviceInfo(idx);
+                    RtAudio.DeviceInfo info = audio.getDeviceInfo((uint)idx);
 
                     if (info.name.Contains(selectedInput))
                     {
@@ -163,11 +166,11 @@ namespace RtAudioNet_Test_Suite
                 } // end for
 
                 RtAudio.StreamParameters inputParams = new RtAudio.StreamParameters();
-                inputParams.deviceId = inputID;
+                inputParams.deviceId = (uint)inputID;
                 inputParams.nChannels = 2;
 
                 RtAudio.StreamParameters outputParams = new RtAudio.StreamParameters();
-                outputParams.deviceId = outputID;
+                outputParams.deviceId = (uint)outputID;
                 outputParams.nChannels = 2;
 
                 RtAudio.StreamOptions options = new RtAudio.StreamOptions();
@@ -176,11 +179,26 @@ namespace RtAudioNet_Test_Suite
                 //audio.openStream(outputParams, inputParams, RtAudioFormat.RTAUDIO_SINT32, 44100, frames, loopbackCallback, userData);
 
 
+                /*
                 duplexStream = new RtDuplexStream(RtAudioFormat.RTAUDIO_SINT32, 2, 44100, 32, 256);
                 duplexStream.selectInputDevice((int)inputID);
                 duplexStream.selectOutputDevice((int)outputID);
                 duplexStream.Open();
                 duplexStream.Start();
+                */
+
+                inputStream = new RtInputStream(RtAudioFormat.RTAUDIO_SINT32, 2, 44100, 32, 512);
+                inputStream.selectInputDevice(inputID);
+
+                outputStream = new RtOutputStream(RtAudioFormat.RTAUDIO_SINT32, 2, 44100, 32, 512);
+                outputStream.selectOutputDevice(outputID);
+                outputStream.callbackFired += new EventHandler(inputStream_callbackFired);
+
+                inputStream.Open();
+                outputStream.Open();
+
+                inputStream.Start();
+                outputStream.Start();
 
                 // Change button text
                 startLoopback.Text = "Stop Loopback";
@@ -194,11 +212,18 @@ namespace RtAudioNet_Test_Suite
                 //audio.stopStream();
                 //audio.closeStream();
                 streamRunning = false;
-                duplexStream.Stop();
-                duplexStream.Abort();
+                //duplexStream.Stop();
+                //duplexStream.Abort();
 
                 startLoopback.Text = "Start Loopback";
             } // end if
+        }
+
+        void inputStream_callbackFired(object sender, EventArgs e)
+        {
+            byte[] buff = new byte[2048];
+            int bytesRead = inputStream.Read(buff);
+            outputStream.Write(buff, 0, bytesRead);
         } // end startLoopback_Click
 
     }
