@@ -30,6 +30,7 @@
 
 using namespace System;
 using namespace System::Collections::Generic;
+using namespace System::Runtime::InteropServices;
 
 namespace RtAudioNet {
 
@@ -182,19 +183,19 @@ namespace RtAudioNet {
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			unsigned int bufferFrames, RtAudioNetCallback^ callback) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, gcnew RtAudio::StreamOptions());};
+			[InAttribute] [OutAttribute] unsigned int bufferFrames, RtAudioNetCallback^ callback) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, gcnew RtAudio::StreamOptions());};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			unsigned int bufferFrames, RtAudioNetCallback^ callback, Object^ userData) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, userData, gcnew RtAudio::StreamOptions());};
+			[InAttribute] [OutAttribute] unsigned int bufferFrames, RtAudioNetCallback^ callback, Object^ userData) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, userData, gcnew RtAudio::StreamOptions());};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			unsigned int bufferFrames, RtAudioNetCallback^ callback, RtAudio::StreamOptions^ options) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, options);};
+			[InAttribute] [OutAttribute] unsigned int bufferFrames, RtAudioNetCallback^ callback, RtAudio::StreamOptions^ options) {openStream(outputParameters, inputParameters, format, sampleRate, bufferFrames, callback, nullptr, options);};
 		
 		// A public function for opening a stream with the specified parameters.
 		void openStream( RtAudio::StreamParameters^ outputParameters, RtAudio::StreamParameters^ inputParameters, RtAudioFormat format, unsigned int sampleRate, 
-			unsigned int bufferFrames, RtAudioNetCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options);
+			[InAttribute] [OutAttribute] unsigned int bufferFrames, RtAudioNetCallback^ callback, Object^ userData, RtAudio::StreamOptions^ options);
 		
 		// A function that closes a stream and frees any associated stream memory.
 		void closeStream();
@@ -229,9 +230,6 @@ namespace RtAudioNet {
 		// Specify whether warning messages should be printed to stderr.
 		void showWarnings(bool value);
 		
-		// Frames being used in the stream
-		unsigned int frames;
-
 		// Callback
 		RtAudioNetCallback^ _callback;
 

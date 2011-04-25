@@ -32,6 +32,8 @@ using System.Text;
 using System.Windows.Forms;
 
 using RtAudioNet;
+using RtStream;
+
 using System.Runtime.InteropServices;
 using System.IO;
 
@@ -40,9 +42,8 @@ namespace RtAudioNet_Test_Suite
     public partial class MainForm : Form
     {
         private RtAudio audio = null;
+        private RtDuplexStream duplexStream = null;
         private bool streamRunning = false;
-
-        private string userData = null;
 
         public MainForm()
         {
@@ -128,7 +129,7 @@ namespace RtAudioNet_Test_Suite
             // Just testing to make sure we can get the user data.
             String data = userData as String;
 
-            int size = (int) audio.frames * 2 * 4; // Frames per sample * channels * bytes in an int
+            int size = (int) frames * 2 * 4; // Frames per sample * channels * bytes in an int
             byte[] bytes = new byte[size];
             
             // Copy the input to the output
@@ -170,24 +171,31 @@ namespace RtAudioNet_Test_Suite
                 outputParams.nChannels = 2;
 
                 RtAudio.StreamOptions options = new RtAudio.StreamOptions();
-                uint frames = 512;
+                //uint frames = 512;
 
-                userData = "This is my User Data!";
+                //audio.openStream(outputParams, inputParams, RtAudioFormat.RTAUDIO_SINT32, 44100, frames, loopbackCallback, userData);
 
-                audio.openStream(outputParams, inputParams, RtAudioFormat.RTAUDIO_SINT32, 44100, frames, loopbackCallback, userData);
+
+                duplexStream = new RtDuplexStream(RtAudioFormat.RTAUDIO_SINT32, 2, 44100, 32, 256);
+                duplexStream.selectInputDevice((int)inputID);
+                duplexStream.selectOutputDevice((int)outputID);
+                duplexStream.Open();
+                duplexStream.Start();
 
                 // Change button text
                 startLoopback.Text = "Stop Loopback";
                 streamRunning = true;
 
                 // Start the stream
-                audio.startStream();
+                //audio.startStream();
             }
             else
-            {
-                audio.stopStream();
-                audio.closeStream();
+            { 
+                //audio.stopStream();
+                //audio.closeStream();
                 streamRunning = false;
+                duplexStream.Stop();
+                duplexStream.Abort();
 
                 startLoopback.Text = "Start Loopback";
             } // end if
