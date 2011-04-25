@@ -108,6 +108,12 @@ namespace RtStream
 		// Stream's format
 		RtStreamFormat^ Format;
 
+		// Called whenever the RtAudio callback is fired.
+		event EventHandler^ callbackFired;
+
+		// Callback
+		::RtAudioNet::RtAudioNetCallback^ _callback;
+
 	protected:
 		// Our internal RtAudio instance
 		::RtAudioNet::RtAudio^ rtaudio;
@@ -126,13 +132,27 @@ namespace RtStream
 	{
 	public:
 		// Default Constructor
-		RtInputStream();
+		RtInputStream() { frames = 512; initialize(); };
+
+		// Default Constructor
+		RtInputStream(unsigned int frames) {this->frames = frames; initialize();};
 
 		// Format constructor
-		RtInputStream(RtStreamFormat^ format) { Format = format; RtInputStream(); };
+		RtInputStream(RtStreamFormat^ format){ Format = format; frames = 512; initialize();};
 
-		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...)
-		RtInputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) { RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; RtInputStream(); };
+		// Format constructor
+		RtInputStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->frames = frames; initialize();};
+
+		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
+		RtInputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) 
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; frames = 512; initialize(); };
+
+		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
+		RtInputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int frames)
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->frames = frames; initialize(); };
+
+		// Default Destructor
+		~RtInputStream();
 
 		// Selects the correct input device
 		void selectInputDevice(int devID);
@@ -162,6 +182,12 @@ namespace RtStream
 		bool IsLive();
 
 	protected:
+		// Finish initializing the stream
+		void initialize();
+
+		// Internal Steam's frame size
+		unsigned int frames;
+
 		// Input stream parameters
 		::RtAudioNet::RtAudio::StreamParameters^ inputStreamParams;
 
@@ -174,13 +200,27 @@ namespace RtStream
 	{
 	public:
 		// Default Constructor
-		RtOutputStream();
+		RtOutputStream() { frames = 512; initialize(); };
+
+		// Default Constructor
+		RtOutputStream(unsigned int frames) {this->frames = frames; initialize();};
 
 		// Format constructor
-		RtOutputStream(RtStreamFormat^ format) { Format = format; RtOutputStream(); };
+		RtOutputStream(RtStreamFormat^ format){ Format = format; frames = 512; initialize();};
 
-		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...)
-		RtOutputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) { RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; RtOutputStream(); };
+		// Format constructor
+		RtOutputStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->frames = frames; initialize();};
+
+		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
+		RtOutputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) 
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; frames = 512; initialize(); };
+
+		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
+		RtOutputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int frames)
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->frames = frames; initialize(); };
+
+		// Default Destructor
+		~RtOutputStream();
 
 		// Selects the correct input device
 		void selectOutputDevice(int devID);
@@ -210,6 +250,12 @@ namespace RtStream
 		bool IsLive();
 
 	protected:
+		// Finish initializing the stream
+		void initialize();
+
+		// Internal Steam's frame size
+		unsigned int frames;
+
 		// Input stream parameters
 		::RtAudioNet::RtAudio::StreamParameters^ outputStreamParams;
 

@@ -4,8 +4,15 @@ using namespace System::IO;
 
 generic<class T> CircularBuffer<T>::CircularBuffer(int capacity)
 {
-	capacity = false;
-	_allowOverflow = false;
+	if (capacity < 0)
+		throw gcnew System::ArgumentException("capacity must be greater than or equal to zero.", "capacity");
+
+	this->capacity = capacity;
+	size = 0;
+	head = 0;
+	tail = 0;
+	buffer = gcnew array<T>(capacity);
+	AllowOverflow = false;
 } // end CircularBuffer
 
 generic<class T> CircularBuffer<T>::CircularBuffer(int capacity, bool allowOverflow)
