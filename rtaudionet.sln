@@ -7,29 +7,35 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RtAudioNet Test Suite", "Rt
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|Win32 = Debug|Win32
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|Win32 = Release|Win32
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Debug|Win32.ActiveCfg = Debug|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Debug|Win32.Build.0 = Debug|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Debug|x86.ActiveCfg = Debug|Win32
+		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Release|Any CPU.ActiveCfg = Release|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Release|Win32.ActiveCfg = Release|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Release|Win32.Build.0 = Release|Win32
 		{0A3430CA-D83E-419B-A93E-A8DCD2DCECD1}.Release|x86.ActiveCfg = Release|Win32
+		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Debug|Win32.ActiveCfg = Debug|x86
 		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Debug|x86.ActiveCfg = Debug|x86
 		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Debug|x86.Build.0 = Debug|x86
+		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Release|Any CPU.ActiveCfg = Release|x86
 		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Release|Mixed Platforms.Build.0 = Release|x86
 		{BC8B9833-493A-4D5A-826E-082637BF4DCB}.Release|Win32.ActiveCfg = Release|x86

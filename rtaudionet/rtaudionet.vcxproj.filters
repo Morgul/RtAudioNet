@@ -15,9 +15,6 @@
     <Filter Include="RtAudio\include">
       <UniqueIdentifier>{0034ec79-c117-435e-bbe0-7bee190ee404}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Circular Buffer">
-      <UniqueIdentifier>{d8787c96-bf7a-4990-bf10-62914693f6db}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RtAudio\RtAudio.h">
@@ -65,8 +62,8 @@
     <ClInclude Include="RtStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Circular Buffer\circular.h">
-      <Filter>Circular Buffer</Filter>
+    <ClInclude Include="CircularBuffer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +89,9 @@
       <Filter>RtAudio\include</Filter>
     </ClCompile>
     <ClCompile Include="RtStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CircularBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

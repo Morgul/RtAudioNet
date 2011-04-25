@@ -33,6 +33,7 @@ using System.Windows.Forms;
 
 using RtAudioNet;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace RtAudioNet_Test_Suite
 {
@@ -46,6 +47,26 @@ namespace RtAudioNet_Test_Suite
         public MainForm()
         {
             InitializeComponent();
+
+            // Circular Buffer Tests
+            /*
+            CircularBuffer<byte> cb = new CircularBuffer<byte>(512, true);
+            Console.WriteLine("cb Cap: {0}", cb.Capacity);
+            cb.Add((byte)255);
+            Console.WriteLine("cb Cap: {0}", cb.Capacity);
+            cb.Add((byte)255);
+            Console.WriteLine("cb Cap: {0}", cb.Capacity);
+            cb.Add((byte)255);
+            Console.WriteLine("cb Cap: {0}", cb.Capacity);
+            cb.Add((byte)128);
+            Console.WriteLine("cb Cap: {0}", cb.Capacity);
+            cb.Add((byte)255);
+            Console.WriteLine("cb Cap: {0}", cb.Capacity);
+            cb.Add((byte)255);
+            Console.WriteLine("cb Cap: {0}", cb.Capacity);
+
+            Console.WriteLine("Count: {0}", cb.Count);
+            */
 
             audio = new RtAudio();
             audio.rtErrorDebugWarning += new EventHandler<RtErrorEventArgs>(handleRtError);
