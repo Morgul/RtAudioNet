@@ -124,9 +124,6 @@ namespace RtAudioNet
 			throwError(&exception);
 		} // end try/catch
 
-		// Set frames --This is to work around inability to pass by reference to C#.
-		frames = bufferFrames;
-
 		// Set our callback to the delegate we got from the caller.
 		_callback = callback;
 
@@ -200,19 +197,23 @@ namespace RtAudioNet
 	void RtAudio::initialize(RtAudio::Api api)
 	{
 		_rtaudio = new ::RtAudio(::RtAudio::Api(int(api)));
-		frames = 0;
 	} // end initialize
 
 	// Converstion of StreamParameters^ to StreamParameters*
 	::RtAudio::StreamParameters* RtAudio::convertManagedToUnmanaged(RtAudio::StreamParameters^ _params)
 	{
-		::RtAudio::StreamParameters* params = new ::RtAudio::StreamParameters();
+		if (_params != nullptr)
+		{
+			::RtAudio::StreamParameters* params = new ::RtAudio::StreamParameters();
+	
+			params->deviceId = _params->deviceId;
+			params->nChannels = _params->nChannels;
+			params->firstChannel = _params->firstChannel;
+			
+			return params;
+		} // end if
 
-		params->deviceId = _params->deviceId;
-		params->nChannels = _params->nChannels;
-		params->firstChannel = _params->firstChannel;
-		
-		return params;
+		return nullptr;
 	} // end convertManagedToUnmanaged
 
 	// Converstion of StreamOptions^ to StreamOptions*

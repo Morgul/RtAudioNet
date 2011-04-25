@@ -25,6 +25,7 @@
 #pragma once
 
 #include "rtaudionet.h"
+#include "CircularBuffer.h"
 
 using namespace System::Runtime::InteropServices;
 using namespace System::IO;
@@ -75,16 +76,16 @@ namespace RtStream
 		virtual void SetLength(long long value) override { throw gcnew NotSupportedException(); };
 
 		// Flush method required by the stream base class.
-		virtual void Flush() override {System::Array::Clear(buffer, 0, buffer->Length);};
+		virtual void Flush() override {internalBuffer->Clear();};
 
 		// Read method required by the stream base class.
-		virtual int Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count) override { return 0; };
+		virtual int Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count) override;
 
 		// Read class that's more convienent.
 		int Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer);
 		
 		// Write method required by the stream base class.
-		virtual void Write(array<unsigned char>^ buffer, int offset, int count) override { };
+		virtual void Write(array<unsigned char>^ buffer, int offset, int count) override;
 
 		// Write method required by the stream base class.
 		void Write(array<unsigned char>^ buffer);
@@ -98,6 +99,9 @@ namespace RtStream
 		// Stops the stream
 		void Stop() { };
 
+		// Closes the stream
+		void Abort() { };
+
 		// Is the stream a live stream, or a buffered stream?
 		bool IsLive() { return false; };
 
@@ -109,7 +113,7 @@ namespace RtStream
 		::RtAudioNet::RtAudio^ rtaudio;
 
 		// Our internal buffer
-		array<unsigned char>^ buffer;
+		CircularBuffer<unsigned char>^ internalBuffer;
 
 		// Property variables
 		bool _canRead;
@@ -150,6 +154,9 @@ namespace RtStream
 
 		// Stops the stream
 		void Stop();
+
+		// Closes the stream
+		void Abort();
 
 		// Is the stream a live stream, or a buffered stream?
 		bool IsLive();
@@ -196,26 +203,52 @@ namespace RtStream
 		// Stops the stream
 		void Stop();
 
+		// Closes the stream
+		void Abort();
+
 		// Is the stream a live stream, or a buffered stream?
 		bool IsLive();
 
 	protected:
 		// Input stream parameters
 		::RtAudioNet::RtAudio::StreamParameters^ outputStreamParams;
+
+		// The stream's callback
+        int callback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, unsigned int frames, double streamTime, ::RtAudioNet::RtAudioStreamStatus status, Object^ userData);
 	}; // end RtOutputStream
 
 	// RtDuplexStream takes an input device and outputs that to the output device.
-	public ref class RtDuplexStream : RtInputStream
+	public ref class RtDuplexStream : RtAudioStream
 	{
 	public:
 		// Default Constructor
-		RtDuplexStream();
+		RtDuplexStream() { frames = 512; initialize(); };
+
+		// Default Constructor
+		RtDuplexStream(unsigned int frames) {this->frames = frames; initialize();};
 
 		// Format constructor
-		RtDuplexStream(RtStreamFormat^ format) { Format = format; RtOutputStream(); };
+		RtDuplexStream(RtStreamFormat^ format){ Format = format; frames = 512; initialize();};
+
+		// Format constructor
+		RtDuplexStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->frames = frames; initialize();};
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
-		RtDuplexStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) { RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; RtDuplexStream(); };
+		RtDuplexStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) 
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; frames = 512; initialize(); };
+
+		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
+		RtDuplexStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int frames)
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->frames = frames; initialize(); };
+
+		// Default Destructor
+		~RtDuplexStream();
+
+		// Selects the correct input device
+		void selectInputDevice(int devID);
+
+		// Selects the correct input device
+		void selectInputDevice(String^ devString);
 
 		// Selects the correct input device
 		void selectOutputDevice(int devID);
@@ -238,12 +271,27 @@ namespace RtStream
 		// Stops the stream
 		void Stop();
 
+		// Closes the stream
+		void Abort();
+
 		// Is the stream a live stream, or a buffered stream?
 		bool IsLive();
 
 	protected:
+		// Finish initializing the stream
+		void initialize();
+
+		// Internal Steam's frame size
+		unsigned int frames;
+
 		// Input stream parameters
+		::RtAudioNet::RtAudio::StreamParameters^ inputStreamParams;
+
+		// Output stream parameters
 		::RtAudioNet::RtAudio::StreamParameters^ outputStreamParams;
+
+		// The stream's callback
+        int callback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, unsigned int frames, double streamTime, ::RtAudioNet::RtAudioStreamStatus status, Object^ userData);
 	}; // end RtDuplexStream
 
 	// RtStreamConverter will be a lightweight wrapper around an RtAudioStream. Everytime a Read is called, it will read from the RtAudioStream
