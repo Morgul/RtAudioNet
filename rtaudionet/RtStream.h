@@ -81,14 +81,20 @@ namespace RtStream
 		// Read method required by the stream base class.
 		virtual int Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count) override;
 
+		// Read method required by the stream base class.
+		virtual int Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count);
+
 		// Read class that's more convienent.
-		int Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer);
+		int Read([InAttribute] [OutAttribute] array<float>^ buffer);
 		
 		// Write method required by the stream base class.
 		virtual void Write(array<unsigned char>^ buffer, int offset, int count) override;
 
 		// Write method required by the stream base class.
-		void Write(array<unsigned char>^ buffer);
+		virtual void Write(array<float>^ buffer, int offset, int count);
+
+		// Write method required by the stream base class.
+		void Write(array<float>^ buffer);
 
 		// Opens the stream
 		void Open() { };
@@ -105,8 +111,17 @@ namespace RtStream
 		// Is the stream a live stream, or a buffered stream?
 		bool IsLive() { return false; };
 
+		// Is the stream currently open?
+		bool IsStreamOpen() { return rtaudio->isStreamOpen(); };
+
+		// Is the stream currently running?
+		bool IsStreamRunning() { return rtaudio->isStreamRunning(); };
+
 		// Stream's format
 		RtStreamFormat^ Format;
+
+		// The frames buffered in the stream
+		property unsigned int Frames;
 
 		// Called whenever the RtAudio callback is fired.
 		event EventHandler^ callbackFired;
@@ -119,7 +134,7 @@ namespace RtStream
 		::RtAudioNet::RtAudio^ rtaudio;
 
 		// Our internal buffer
-		CircularBuffer<unsigned char>^ internalBuffer;
+		CircularBuffer<float>^ internalBuffer;
 
 		// Property variables
 		bool _canRead;
@@ -132,24 +147,24 @@ namespace RtStream
 	{
 	public:
 		// Default Constructor
-		RtInputStream() { frames = 512; initialize(); };
+		RtInputStream() { Frames = 512; initialize(); };
 
 		// Default Constructor
-		RtInputStream(unsigned int frames) {this->frames = frames; initialize();};
+		RtInputStream(unsigned int frames) {this->Frames = frames; initialize();};
 
 		// Format constructor
-		RtInputStream(RtStreamFormat^ format){ Format = format; frames = 512; initialize();};
+		RtInputStream(RtStreamFormat^ format){ Format = format; Frames = 512; initialize();};
 
 		// Format constructor
-		RtInputStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->frames = frames; initialize();};
+		RtInputStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->Frames = frames; initialize();};
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
 		RtInputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) 
-		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; frames = 512; initialize(); };
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; Frames = 512; initialize(); };
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
 		RtInputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int frames)
-		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->frames = frames; initialize(); };
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->Frames = frames; initialize(); };
 
 		// Default Destructor
 		~RtInputStream();
@@ -161,10 +176,10 @@ namespace RtStream
 		void selectInputDevice(String^ devString);
 
 		// Read method required by the stream base class.
-		virtual int Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count) override;
+		virtual int Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count) override;
 		
 		// Write method required by the stream base class.
-		virtual void Write(array<unsigned char>^ buffer, int offset, int count) override;
+		virtual void Write(array<float>^ buffer, int offset, int count) override;
 
 		// Opens the stream
 		void Open();
@@ -184,9 +199,6 @@ namespace RtStream
 	protected:
 		// Finish initializing the stream
 		void initialize();
-
-		// Internal Steam's frame size
-		unsigned int frames;
 
 		// Input stream parameters
 		::RtAudioNet::RtAudio::StreamParameters^ inputStreamParams;
@@ -200,24 +212,24 @@ namespace RtStream
 	{
 	public:
 		// Default Constructor
-		RtOutputStream() { frames = 512; initialize(); };
+		RtOutputStream() { Frames = 512; initialize(); };
 
 		// Default Constructor
-		RtOutputStream(unsigned int frames) {this->frames = frames; initialize();};
+		RtOutputStream(unsigned int frames) {this->Frames = frames; initialize();};
 
 		// Format constructor
-		RtOutputStream(RtStreamFormat^ format){ Format = format; frames = 512; initialize();};
+		RtOutputStream(RtStreamFormat^ format){ Format = format; Frames = 512; initialize();};
 
 		// Format constructor
-		RtOutputStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->frames = frames; initialize();};
+		RtOutputStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->Frames = frames; initialize();};
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
 		RtOutputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) 
-		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; frames = 512; initialize(); };
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; Frames = 512; initialize(); };
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
 		RtOutputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int frames)
-		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->frames = frames; initialize(); };
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->Frames = frames; initialize(); };
 
 		// Default Destructor
 		~RtOutputStream();
@@ -229,10 +241,10 @@ namespace RtStream
 		void selectOutputDevice(String^ devString);
 
 		// Read method required by the stream base class.
-		virtual int Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count) override;
+		virtual int Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count) override;
 		
 		// Write method required by the stream base class.
-		virtual void Write(array<unsigned char>^ buffer, int offset, int count) override;
+		virtual void Write(array<float>^ buffer, int offset, int count) override;
 
 		// Opens the stream
 		void Open();
@@ -253,9 +265,6 @@ namespace RtStream
 		// Finish initializing the stream
 		void initialize();
 
-		// Internal Steam's frame size
-		unsigned int frames;
-
 		// Input stream parameters
 		::RtAudioNet::RtAudio::StreamParameters^ outputStreamParams;
 
@@ -268,24 +277,24 @@ namespace RtStream
 	{
 	public:
 		// Default Constructor
-		RtDuplexStream() { frames = 512; initialize(); };
+		RtDuplexStream() { Frames = 512; initialize(); };
 
 		// Default Constructor
-		RtDuplexStream(unsigned int frames) {this->frames = frames; initialize();};
+		RtDuplexStream(unsigned int frames) {this->Frames = frames; initialize();};
 
 		// Format constructor
-		RtDuplexStream(RtStreamFormat^ format){ Format = format; frames = 512; initialize();};
+		RtDuplexStream(RtStreamFormat^ format){ Format = format; Frames = 512; initialize();};
 
 		// Format constructor
-		RtDuplexStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->frames = frames; initialize();};
+		RtDuplexStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->Frames = frames; initialize();};
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
 		RtDuplexStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) 
-		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; frames = 512; initialize(); };
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; Frames = 512; initialize(); };
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
 		RtDuplexStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int frames)
-		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->frames = frames; initialize(); };
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->Frames = frames; initialize(); };
 
 		// Default Destructor
 		~RtDuplexStream();
@@ -303,10 +312,10 @@ namespace RtStream
 		void selectOutputDevice(String^ devString);
 
 		// Read method required by the stream base class.
-		virtual int Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count) override;
+		virtual int Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count) override;
 		
 		// Write method required by the stream base class.
-		virtual void Write(array<unsigned char>^ buffer, int offset, int count) override;
+		virtual void Write(array<float>^ buffer, int offset, int count) override;
 
 		// Opens the stream
 		void Open();
@@ -326,9 +335,6 @@ namespace RtStream
 	protected:
 		// Finish initializing the stream
 		void initialize();
-
-		// Internal Steam's frame size
-		unsigned int frames;
 
 		// Input stream parameters
 		::RtAudioNet::RtAudio::StreamParameters^ inputStreamParams;

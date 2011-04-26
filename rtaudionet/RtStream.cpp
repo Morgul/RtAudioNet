@@ -23,6 +23,7 @@
 #pragma endregion
 
 #include "RtStream.h"
+#include <msclr\lock.h>
 
 namespace RtStream
 {
@@ -33,7 +34,7 @@ namespace RtStream
 	{
 		// Since we don't use it, there's no need to instantiate it.
 		//rtaudio = gcnew ::RtAudioNet::RtAudio();
-		internalBuffer = gcnew CircularBuffer<unsigned char>(4096);
+		internalBuffer = gcnew CircularBuffer<float>(4096);
 
 		_canRead = true;
 		_canWrite = true;
@@ -43,11 +44,23 @@ namespace RtStream
 	// Read method required by the stream base class.
 	int RtAudioStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
 	{
+		array<float>^ tempBuff = gcnew array<float>(buffer->Length / 4);
+		int bytesRead = 4 * internalBuffer->Get(tempBuff, offset, count);
+
+		// Copy to byte array
+		Buffer::BlockCopy(tempBuff, 0, buffer, 0, buffer->Length);
+
+		return bytesRead;
+	} // end Read
+
+	// Read method required by the stream base class.
+	int RtAudioStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
+	{
 		return internalBuffer->Get(buffer, offset, count); 
 	} // end Read
 
 	// Read class that's more convienent.
-	int RtAudioStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer)
+	int RtAudioStream::Read([InAttribute] [OutAttribute] array<float>^ buffer)
 	{
 		return Read(buffer, 0, buffer->Length);
 	} // end Read
@@ -55,11 +68,23 @@ namespace RtStream
 	// Write method required by the stream base class.
 	void RtAudioStream::Write(array<unsigned char>^ buffer, int offset, int count)
 	{
+		array<float>^ tempBuff = gcnew array<float>(buffer->Length / 4);
+		int bytesRead = 4 * internalBuffer->Get(tempBuff, offset, count);
+
+		// Copy to byte array
+		Buffer::BlockCopy(buffer, 0, tempBuff, 0, buffer->Length);
+
+		internalBuffer->Put(tempBuff, offset, count);
+	} //end Write
+
+	// Write method required by the stream base class.
+	void RtAudioStream::Write(array<float>^ buffer, int offset, int count)
+	{
 		internalBuffer->Put(buffer, offset, count);
 	} //end Write
 
 	// Write class that's more convienent.
-	void RtAudioStream::Write(array<unsigned char>^ buffer)
+	void RtAudioStream::Write(array<float>^ buffer)
 	{
 		Write(buffer, 0, buffer->Length);
 	} // end Write
@@ -74,8 +99,8 @@ namespace RtStream
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		
-		// Frames per sample * channels * bytes in an int	
-		internalBuffer = gcnew CircularBuffer<unsigned char>(frames * Format->channels * 4);
+		// (Frames per sample * channels) * numSamplesToBuffer
+		internalBuffer = gcnew CircularBuffer<float>((Frames * Format->channels * 2), true);
 
 		// Set stream properties
 		_canRead = true;
@@ -125,7 +150,7 @@ namespace RtStream
 	// Opens the stream
 	void RtInputStream::Open()
 	{
-		rtaudio->openStream(nullptr, inputStreamParams, Format->type, Format->sampleRate, frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtInputStream::callback));
+		rtaudio->openStream(nullptr, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtInputStream::callback));
 	} // end Open
 
 	// Starts the stream
@@ -154,13 +179,14 @@ namespace RtStream
 	} // end Stop
 	
 	// Read class required by the stream base class.
-	int RtInputStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
+	int RtInputStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
 	{
+		msclr::lock lk(internalBuffer);
 		return internalBuffer->Get(buffer, offset, count); 
 	} // end Read
 	
 	// Write class required by the stream base class.
-	void RtInputStream::Write(array<unsigned char>^ buffer, int offset, int count)
+	void RtInputStream::Write(array<float>^ buffer, int offset, int count)
 	{
 		throw gcnew System::NotImplementedException();
 	} // end Write
@@ -174,14 +200,18 @@ namespace RtStream
 	int RtInputStream::callback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, unsigned int frames, double streamTime, ::RtAudioNet::RtAudioStreamStatus status, Object^ userData)
 	{
 		// Create our temporary buffer
-		unsigned int bytesToCopy = frames * Format->channels * (Format->bitsPerSample / 8);
-		array<unsigned char>^ tempBuff = gcnew array<unsigned char>(bytesToCopy);
+		unsigned int floatsToCopy = frames * Format->channels;
+		array<float>^ tempBuff = gcnew array<float>(floatsToCopy);
 
 		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?
-		Marshal::Copy(inputBufferPtr, tempBuff, 0, bytesToCopy);
+		Marshal::Copy(inputBufferPtr, tempBuff, 0, floatsToCopy);
+
+		msclr::lock lk(internalBuffer);
 
 		// And now, we add out temp buffer to our main buffer.
 		internalBuffer->Put(tempBuff);
+		
+		lk.release();
 
 		// Fire the callback event.
 		callbackFired(this, nullptr);
@@ -200,8 +230,8 @@ namespace RtStream
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		
-		// Frames per sample * channels * bytes in an int	
-		internalBuffer = gcnew CircularBuffer<unsigned char>(frames * Format->channels * 4);
+		// (Frames per sample * channels) * numSamplesToBuffer
+		internalBuffer = gcnew CircularBuffer<float>((Frames * Format->channels * 2), true);
 
 		// Set stream properties
 		_canRead = false;
@@ -250,7 +280,7 @@ namespace RtStream
 	// Opens the stream
 	void RtOutputStream::Open()
 	{
-		rtaudio->openStream(outputStreamParams, nullptr, Format->type, Format->sampleRate, frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtOutputStream::callback));
+		rtaudio->openStream(outputStreamParams, nullptr, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtOutputStream::callback));
 	} // end Open
 
 	// Starts the stream
@@ -279,14 +309,15 @@ namespace RtStream
 	} // end Stop
 
 	// Read class required by the stream base class.
-	int RtOutputStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
+	int RtOutputStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
 	{
 		throw gcnew System::NotImplementedException();
 	} // end Read
 	
 	// Write class required by the stream base class.
-	void RtOutputStream::Write(array<unsigned char>^ buffer, int offset, int count)
+	void RtOutputStream::Write(array<float>^ buffer, int offset, int count)
 	{
+		msclr::lock lk(internalBuffer);
 		internalBuffer->Put(buffer, offset, count);
 	} // end Write
 
@@ -299,11 +330,15 @@ namespace RtStream
 	int RtOutputStream::callback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, unsigned int frames, double streamTime, ::RtAudioNet::RtAudioStreamStatus status, Object^ userData)
 	{
 		// Create our temporary buffer
-		unsigned int bytesToCopy = frames * Format->channels * (Format->bitsPerSample / 8);
-		array<unsigned char>^ tempBuff = gcnew array<unsigned char>(bytesToCopy);
+		unsigned int floatsToCopy = frames * Format->channels;
+		array<float>^ tempBuff = gcnew array<float>(floatsToCopy);
 
+		msclr::lock lk(internalBuffer);
+		
 		// And now, we add out temp buffer to our main buffer.
 		int bytesCopied = internalBuffer->Get(tempBuff);
+
+		lk.release();
 
 		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?
 		Marshal::Copy(tempBuff, 0, outputBufferPtr, bytesCopied);
@@ -326,8 +361,8 @@ namespace RtStream
 		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		
-		// Frames per sample * channels * bytes in an int	
-		internalBuffer = gcnew CircularBuffer<unsigned char>(frames * Format->channels * 4);
+		// (Frames per sample * channels * bytes) * numSamplesToBuffer in an int	
+		//internalBuffer = gcnew CircularBuffer<unsigned char>((frames * Format->channels * 4 * 2), true);
 
 		// Set stream properties
 		_canRead = false;
@@ -400,7 +435,7 @@ namespace RtStream
 	// Opens the stream
 	void RtDuplexStream::Open()
 	{
-		rtaudio->openStream(outputStreamParams, inputStreamParams, Format->type, Format->sampleRate, frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtDuplexStream::callback));
+		rtaudio->openStream(outputStreamParams, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtDuplexStream::callback));
 	} // end Open
 
 	// Starts the stream
@@ -429,14 +464,15 @@ namespace RtStream
 	} // end Stop
 
 	// Read class required by the stream base class.
-	int RtDuplexStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
+	int RtDuplexStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
 	{
-		return 0;
+		throw gcnew System::NotImplementedException();
 	} // end Read
 	
 	// Write class required by the stream base class.
-	void RtDuplexStream::Write(array<unsigned char>^ buffer, int offset, int count)
+	void RtDuplexStream::Write(array<float>^ buffer, int offset, int count)
 	{
+		throw gcnew System::NotImplementedException();
 	} // end Write
 
 	// Is the stream a live stream, or a buffered stream?
@@ -449,7 +485,7 @@ namespace RtStream
 	{
 		// Create our temporary buffer
 		unsigned int bytesToCopy = frames * Format->channels * (Format->bitsPerSample / 8);
-		array<unsigned char>^ tempBuff = gcnew array<unsigned char>(bytesToCopy);
+		array<float>^ tempBuff = gcnew array<float>(bytesToCopy);
 
 		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?
 		Marshal::Copy(inputBufferPtr, tempBuff, 0, bytesToCopy);
@@ -457,9 +493,6 @@ namespace RtStream
 		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?
 		Marshal::Copy(tempBuff, 0, outputBufferPtr, bytesToCopy);
 
-		// Fire the callback event.
-		callbackFired(this, nullptr);
-		
 		// We always return zero.
 		return 0;
 	} // end callback
@@ -471,7 +504,7 @@ namespace RtStream
 	RtStreamConverter::RtStreamConverter(RtAudioStream^ stream)
 	{
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
-		internalBuffer = gcnew CircularBuffer<unsigned char>(4096);
+		internalBuffer = gcnew CircularBuffer<float>(4096);
 		_stream = stream;
 	} // end RtWaveStream
 

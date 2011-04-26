@@ -91,6 +91,7 @@
     <ClInclude Include="RtAudio\RtAudio.h" />
     <ClInclude Include="RtAudio\RtError.h" />
     <ClInclude Include="RtErrorNet.h" />
+    <ClInclude Include="RtMixer.h" />
     <ClInclude Include="RtStream.h" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +103,7 @@
     <ClCompile Include="RtAudio\include\asiolist.cpp" />
     <ClCompile Include="RtAudio\include\iasiothiscallresolver.cpp" />
     <ClCompile Include="RtAudio\RtAudio.cpp" />
+    <ClCompile Include="RtMixer.cpp" />
     <ClCompile Include="RtStream.cpp" />
   </ItemGroup>
   <ItemGroup>
