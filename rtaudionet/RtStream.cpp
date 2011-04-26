@@ -150,7 +150,14 @@ namespace RtStream
 	// Opens the stream
 	void RtInputStream::Open()
 	{
-		rtaudio->openStream(nullptr, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtInputStream::callback));
+		if (Format->options == nullptr)
+		{
+			rtaudio->openStream(nullptr, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtInputStream::callback));
+		}
+		else
+		{
+			rtaudio->openStream(nullptr, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtInputStream::callback), nullptr, Format->options);
+		} // end if
 	} // end Open
 
 	// Starts the stream
@@ -280,7 +287,14 @@ namespace RtStream
 	// Opens the stream
 	void RtOutputStream::Open()
 	{
-		rtaudio->openStream(outputStreamParams, nullptr, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtOutputStream::callback));
+		if (Format->options == nullptr)
+		{
+			rtaudio->openStream(outputStreamParams, nullptr, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtOutputStream::callback));
+		}
+		else
+		{
+			rtaudio->openStream(outputStreamParams, nullptr, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtOutputStream::callback), nullptr, Format->options);
+		} // end if
 	} // end Open
 
 	// Starts the stream
@@ -435,7 +449,14 @@ namespace RtStream
 	// Opens the stream
 	void RtDuplexStream::Open()
 	{
-		rtaudio->openStream(outputStreamParams, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtDuplexStream::callback));
+		if (Format->options == nullptr)
+		{
+			rtaudio->openStream(outputStreamParams, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtDuplexStream::callback));
+		}
+		else
+		{
+			rtaudio->openStream(outputStreamParams, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtDuplexStream::callback), nullptr, Format->options);
+		} // end if
 	} // end Open
 
 	// Starts the stream
