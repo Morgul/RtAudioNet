@@ -219,24 +219,29 @@ namespace RtAudioNet
 	// Converstion of StreamOptions^ to StreamOptions*
 	::RtAudio::StreamOptions* RtAudio::convertManagedToUnmanaged(RtAudio::StreamOptions^ _options)
 	{
-		::RtAudio::StreamOptions* options = new ::RtAudio::StreamOptions();
-
-		options->numberOfBuffers = _options->numberOfBuffers;
-
-		// Convert streamName
-		std::string streamName;
-		
-		if(_options->streamName != nullptr)
+		if (_options != nullptr)
 		{
-			String^ name = gcnew String(_options->streamName);
-			streamName = marshal_as<std::string>(name);
+			::RtAudio::StreamOptions* options = new ::RtAudio::StreamOptions();
+	
+			options->numberOfBuffers = _options->numberOfBuffers;
+	
+			// Convert streamName
+			std::string streamName;
+			
+			if(_options->streamName != nullptr)
+			{
+				String^ name = gcnew String(_options->streamName);
+				streamName = marshal_as<std::string>(name);
+			} // end if
+	
+			options->streamName = streamName;
+			
+			options->priority = _options->priority;
+	
+			return options;
 		} // end if
 
-		options->streamName = streamName;
-		
-		options->priority = _options->priority;
-
-		return options;
+		return nullptr;
 	} // end convertManagedToUnmanaged
 
 	//////////////////////////////////////////////////////////////////////////

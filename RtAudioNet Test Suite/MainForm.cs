@@ -43,10 +43,14 @@ namespace RtAudioNet_Test_Suite
     public partial class MainForm : Form
     {
         private RtAudio audio = null;
-        private RtDuplexStream duplexStream = null;
+        //private RtAudio audio1 = null;
+        //private RtDuplexStream duplexStream = null;
         private RtInputStream inputStream = null;
         private RtOutputStream outputStream = null;
+        private RtStreamMixer mixer = null;
         private bool streamRunning = false;
+
+        private Byte[] buffer;
 
         public MainForm()
         {
@@ -72,7 +76,10 @@ namespace RtAudioNet_Test_Suite
             Console.WriteLine("Count: {0}", cb.Count);
             */
 
+            buffer = new Byte[512];
+
             audio = new RtAudio();
+            /*
             audio.rtErrorDebugWarning += new EventHandler<RtErrorEventArgs>(handleRtError);
             audio.rtErrorDriverError += new EventHandler<RtErrorEventArgs>(handleRtError); 
             audio.rtErrorInvalidDevice += new EventHandler<RtErrorEventArgs>(handleRtError);
@@ -83,7 +90,11 @@ namespace RtAudioNet_Test_Suite
             audio.rtErrorSystemError += new EventHandler<RtErrorEventArgs>(handleRtError); 
             audio.rtErrorThreadError += new EventHandler<RtErrorEventArgs>(handleRtError); 
             audio.rtErrorUnspecified += new EventHandler<RtErrorEventArgs>(handleRtError);
-            audio.rtErrorWarning += new EventHandler<RtErrorEventArgs>(handleRtError); 
+            audio.rtErrorWarning += new EventHandler<RtErrorEventArgs>(handleRtError);
+            */
+
+            //audio1 = new RtAudio();
+            mixer = new RtStreamMixer();
 
             List<RtAudio.Api> compileApis = RtAudio.getCompiledApi();
 
@@ -127,17 +138,26 @@ namespace RtAudioNet_Test_Suite
             Console.WriteLine("[RtError] {0}", error.Message);
         } // end handleRtError
 
-        int loopbackCallback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, Object userData)
+        int loopbackCallback1(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, Object userData)
         {
-            // Just testing to make sure we can get the user data.
-            String data = userData as String;
-
-            int size = (int) frames * 2 * 4; // Frames per sample * channels * bytes in an int
-            byte[] bytes = new byte[size];
+            int size = (int) frames * 2; // Frames per sample * channels * bytes in an int
+            //byte[] bytes = new byte[size];
             
             // Copy the input to the output
-            Marshal.Copy(inputBufferPtr, bytes, 0, size);
-            Marshal.Copy(bytes, 0, outputBufferPtr, size);
+            //Marshal.Copy(inputBufferPtr, bytes, 0, size);
+            lock (buffer)
+            {
+                Marshal.Copy(buffer, 0, outputBufferPtr, size);
+            }
+            return 0;
+        }
+
+        int loopbackCallback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, Object userData)
+        {
+            lock (buffer)
+            {
+                Marshal.Copy(inputBufferPtr, buffer, 0, buffer.Length);
+            }
             return 0;
         }
 
@@ -174,31 +194,41 @@ namespace RtAudioNet_Test_Suite
                 outputParams.nChannels = 2;
 
                 RtAudio.StreamOptions options = new RtAudio.StreamOptions();
+                options.priority = (int)RtAudioStreamFlags.RTAUDIO_SCHEDULE_REALTIME;
+                options.flags = (int)RtAudioStreamFlags.RTAUDIO_MINIMIZE_LATENCY;
+
+
                 //uint frames = 512;
 
-                //audio.openStream(outputParams, inputParams, RtAudioFormat.RTAUDIO_SINT32, 44100, frames, loopbackCallback, userData);
+                //audio.openStream(null, inputParams, RtAudioFormat.RTAUDIO_SINT8, 44100, 256, loopbackCallback, null, options);
+                //audio1.openStream(outputParams, null, RtAudioFormat.RTAUDIO_SINT8, 44100, 256, loopbackCallback1, null, options);
 
 
-                /*
-                duplexStream = new RtDuplexStream(RtAudioFormat.RTAUDIO_SINT32, 2, 44100, 32, 256);
+                /*duplexStream = new RtDuplexStream(RtAudioFormat.RTAUDIO_SINT32, 2, 44100, 32, 256);
                 duplexStream.selectInputDevice((int)inputID);
                 duplexStream.selectOutputDevice((int)outputID);
                 duplexStream.Open();
-                duplexStream.Start();
-                */
+                duplexStream.Start();*/
 
-                inputStream = new RtInputStream(RtAudioFormat.RTAUDIO_SINT32, 2, 44100, 32, 512);
+                inputStream = new RtInputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
                 inputStream.selectInputDevice(inputID);
+                //inputStream.callbackFired +=new EventHandler(inputStream_callbackFired);
 
-                outputStream = new RtOutputStream(RtAudioFormat.RTAUDIO_SINT32, 2, 44100, 32, 512);
+                outputStream = new RtOutputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
                 outputStream.selectOutputDevice(outputID);
-                outputStream.callbackFired += new EventHandler(inputStream_callbackFired);
 
-                inputStream.Open();
-                outputStream.Open();
+                mixer.AddInputStream(inputStream, "FooBar");
+                mixer.SetOutputStream(outputStream);
 
-                inputStream.Start();
-                outputStream.Start();
+                mixer.Start();
+
+               //outputStream.callbackFired += new EventHandler(inputStream_callbackFired);
+
+                //inputStream.Open();
+                //outputStream.Open();
+
+                //inputStream.Start();
+                //outputStream.Start();
 
                 // Change button text
                 startLoopback.Text = "Stop Loopback";
@@ -206,9 +236,11 @@ namespace RtAudioNet_Test_Suite
 
                 // Start the stream
                 //audio.startStream();
+                //audio1.startStream();
             }
             else
-            { 
+            {
+                mixer.Stop();
                 //audio.stopStream();
                 //audio.closeStream();
                 streamRunning = false;
@@ -221,7 +253,7 @@ namespace RtAudioNet_Test_Suite
 
         void inputStream_callbackFired(object sender, EventArgs e)
         {
-            byte[] buff = new byte[2048];
+            float[] buff = new float[2048];
             int bytesRead = inputStream.Read(buff);
             outputStream.Write(buff, 0, bytesRead);
         } // end startLoopback_Click
