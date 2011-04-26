@@ -5,12 +5,15 @@ using namespace RtStream;
 // Default Constructor
 RtStreamMixer::RtStreamMixer()
 {
-	Format = gcnew RtStreamFormat();
-	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
-	Format->sampleRate = 11025;
-	Format->channels = 2;
+	if (Format == nullptr)
+	{
+		Format = gcnew RtStreamFormat();
+		Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
+		Format->sampleRate = 11025;
+		Format->channels = 2;
+	} // end if
 
-	FramesToBuffer = 2;
+	FramesToBuffer = 1;
 
 	// Internal buffer
 	internalBuffer = gcnew CircularBuffer<float>(1024, true);

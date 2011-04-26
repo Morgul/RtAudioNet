@@ -211,10 +211,12 @@ namespace RtAudioNet_Test_Suite
                 duplexStream.Start();*/
 
                 inputStream = new RtInputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
+                inputStream.Format.options = options;
                 inputStream.selectInputDevice(inputID);
                 //inputStream.callbackFired +=new EventHandler(inputStream_callbackFired);
 
                 outputStream = new RtOutputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
+                outputStream.Format.options = options;
                 outputStream.selectOutputDevice(outputID);
 
                 mixer.AddInputStream(inputStream, "FooBar");

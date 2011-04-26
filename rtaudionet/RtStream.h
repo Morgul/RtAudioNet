@@ -40,6 +40,7 @@ namespace RtStream
 		unsigned int channels;
 		unsigned int sampleRate;
 		unsigned int bitsPerSample;
+		::RtAudioNet::RtAudio::StreamOptions^ options;
 	}; // end RtStreamFormat
 
 	public ref class RtAudioStream : Stream
@@ -118,7 +119,7 @@ namespace RtStream
 		bool IsStreamRunning() { return rtaudio->isStreamRunning(); };
 
 		// Stream's format
-		RtStreamFormat^ Format;
+		property RtStreamFormat^ Format;
 
 		// The frames buffered in the stream
 		property unsigned int Frames;
