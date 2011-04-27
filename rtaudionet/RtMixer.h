@@ -4,6 +4,29 @@ using namespace System::Collections::Generic;
 
 namespace RtStream
 {
+	// Wraps an RtInputStream, and provides Pan/Gain support.
+	public ref class RtMixerInput
+	{
+	public:
+		// Constructor	
+		RtMixerInput();
+
+		// Constructor	
+		RtMixerInput(RtInputStream^ stream);
+
+		// Constructor	
+		RtMixerInput(RtInputStream^ stream, float gain, float pan);
+
+		// Stream Gain
+		property float Gain;
+
+		// Stream Pan
+		property float Pan;
+
+		// Stream
+		property RtInputStream^ InputStream;
+	};
+
 	public ref class RtStreamMixer
 	{
 	public:
@@ -14,7 +37,13 @@ namespace RtStream
 		~RtStreamMixer();
 
 		// Add an input stream to the mixer
-		void AddInputStream(RtInputStream^ inputStream, String^ name);
+		void AddInputStream(RtInputStream^ inputStream);
+
+		// Add an input stream to the mixer
+		void AddInputStream(RtInputStream^ inputStream, float gain, float pan);
+
+		// Add an input stream to the mixer
+		void AddInputStream(RtMixerInput^ input);
 
 		// Add an outputstream to the mixer
 		void SetOutputStream(RtOutputStream^ outputStream);
@@ -54,7 +83,7 @@ namespace RtStream
 		unsigned int framesBuffered;
 
 		// All our internal inputStreams
-		Dictionary<String^, RtInputStream^>^ inputStreams;
+		Dictionary<String^, RtMixerInput^>^ inputs;
 
 		// Our outputStream
 		RtOutputStream^ outputStream;

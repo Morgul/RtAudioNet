@@ -85,6 +85,9 @@ namespace RtStream
 		// Read method required by the stream base class.
 		virtual int Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count);
 
+		// Read method required by the stream base class.
+		virtual int Read(float buffer[], int offset, int count);
+
 		// Read class that's more convienent.
 		int Read([InAttribute] [OutAttribute] array<float>^ buffer);
 		
@@ -93,6 +96,9 @@ namespace RtStream
 
 		// Write method required by the stream base class.
 		virtual void Write(array<float>^ buffer, int offset, int count);
+
+		// Write method required by the stream base class.
+		virtual void Write(float buffer[], int offset, int count);
 
 		// Write method required by the stream base class.
 		void Write(array<float>^ buffer);
@@ -123,6 +129,9 @@ namespace RtStream
 
 		// The frames buffered in the stream
 		property unsigned int Frames;
+
+		// Optional name for the stream
+		property String^ Name;
 
 		// Called whenever the RtAudio callback is fired.
 		event EventHandler^ callbackFired;

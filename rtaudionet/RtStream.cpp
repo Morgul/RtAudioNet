@@ -39,6 +39,8 @@ namespace RtStream
 		_canRead = true;
 		_canWrite = true;
 		_canSeek = false;
+
+		Name = "";
 	} // end RtWaveStream
 	
 	// Read method required by the stream base class.
@@ -57,6 +59,15 @@ namespace RtStream
 	int RtAudioStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
 	{
 		return internalBuffer->Get(buffer, offset, count); 
+	} // end Read
+
+	// Read method required by the stream base class.
+	int RtAudioStream::Read(float buffer[], int offset, int count)
+	{
+		array<float>^ tempBuff = gcnew array<float>(count);
+		int read = internalBuffer->Get(tempBuff, 0, count); 
+		Marshal::Copy(tempBuff, 0, IntPtr(buffer + offset), read);
+		return read;
 	} // end Read
 
 	// Read class that's more convienent.
@@ -83,6 +94,14 @@ namespace RtStream
 		internalBuffer->Put(buffer, offset, count);
 	} //end Write
 
+	// Write method required by the stream base class.
+	void RtAudioStream::Write(float buffer[], int offset, int count)
+	{
+		array<float>^ tempBuff = gcnew array<float>(count);
+		Marshal::Copy(IntPtr(buffer + offset), tempBuff, 0, count);
+		internalBuffer->Put(tempBuff, 0, count);
+	} //end Write
+
 	// Write class that's more convienent.
 	void RtAudioStream::Write(array<float>^ buffer)
 	{
@@ -106,6 +125,7 @@ namespace RtStream
 		_canRead = true;
 		_canWrite = false;
 		_canSeek = false;
+		Name = "";
 	} // end initialize
 	
 	RtInputStream::~RtInputStream()	
@@ -244,6 +264,7 @@ namespace RtStream
 		_canRead = false;
 		_canWrite = true;
 		_canSeek = false;
+		Name = "";
 	} // end initialize
 	
 	RtOutputStream::~RtOutputStream()	
@@ -382,6 +403,7 @@ namespace RtStream
 		_canRead = false;
 		_canWrite = false;
 		_canSeek = false;
+		Name = "";
 	} // end initialize
 	
 	RtDuplexStream::~RtDuplexStream()	

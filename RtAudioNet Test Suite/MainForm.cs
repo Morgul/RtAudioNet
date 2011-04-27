@@ -46,6 +46,7 @@ namespace RtAudioNet_Test_Suite
         //private RtAudio audio1 = null;
         //private RtDuplexStream duplexStream = null;
         private RtInputStream inputStream = null;
+        private RtInputStream inputStream2 = null;
         private RtOutputStream outputStream = null;
         private RtStreamMixer mixer = null;
         private bool streamRunning = false;
@@ -213,13 +214,20 @@ namespace RtAudioNet_Test_Suite
                 inputStream = new RtInputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
                 inputStream.Format.options = options;
                 inputStream.selectInputDevice(inputID);
+                inputStream.Name = "FooBar";
+
+                inputStream2 = new RtInputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
+                inputStream2.Format.options = options;
+                inputStream2.selectInputDevice(0);
+                inputStream2.Name = "FooBar 2";
                 //inputStream.callbackFired +=new EventHandler(inputStream_callbackFired);
 
                 outputStream = new RtOutputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
                 outputStream.Format.options = options;
                 outputStream.selectOutputDevice(outputID);
 
-                mixer.AddInputStream(inputStream, "FooBar");
+                mixer.AddInputStream(inputStream, 1.0f, -1.0f);
+                mixer.AddInputStream(inputStream2, 1.0f, 1.0f);
                 mixer.SetOutputStream(outputStream);
 
                 mixer.Start();
