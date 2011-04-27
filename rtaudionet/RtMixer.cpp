@@ -2,16 +2,44 @@
 
 using namespace RtStream;
 
+//////////////////////////////////////////////////////////////////////////
+/// RtDuplexStream Class
+
+// Constructor	
+RtMixerInput::RtMixerInput()
+{
+	Gain = 0.0;
+	Pan = 0.0;
+	InputStream = nullptr;
+} // end RtMixerInput
+
+// Constructor	
+RtMixerInput::RtMixerInput(RtInputStream^ stream)
+{
+	Gain = 1.0;
+	Pan = 0.0;
+	InputStream = stream;
+} // end RtMixerInput
+
+// Constructor	
+RtMixerInput::RtMixerInput(RtInputStream^ stream, float gain, float pan)
+{
+	Gain = gain;
+	Pan = pan;
+	InputStream = stream;
+} // end RtMixerInput
+
+
+//////////////////////////////////////////////////////////////////////////
+/// RtStreamMixer Class
+
 // Default Constructor
 RtStreamMixer::RtStreamMixer()
 {
-	if (Format == nullptr)
-	{
-		Format = gcnew RtStreamFormat();
-		Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
-		Format->sampleRate = 11025;
-		Format->channels = 2;
-	} // end if
+	Format = gcnew RtStreamFormat();
+	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
+	Format->sampleRate = 11025;
+	Format->channels = 2;
 
 	FramesToBuffer = 1;
 
@@ -21,7 +49,7 @@ RtStreamMixer::RtStreamMixer()
 	running = false;
 
 	// All our internal inputStreams
-	inputStreams = gcnew Dictionary<String^, RtInputStream^>();
+	inputs = gcnew Dictionary<String^, RtMixerInput^>();
 } // end RtStreamMixer
 
 // Default Destructor
@@ -31,8 +59,15 @@ RtStreamMixer::~RtStreamMixer()
 } // end ~RtStreamMixer
 
 // Add an input stream to the mixer
-void RtStreamMixer::AddInputStream(RtInputStream^ inputStream, String^ name)
+void RtStreamMixer::AddInputStream(RtInputStream^ inputStream)
 {
+	if (inputStream->Name == "")
+	{
+		// FIXME: Throw an exception here
+		Console::WriteLine("[Error]: Adding InputStreams without names is unsupported! Ignoring stream.");
+		return;
+	} // end if
+
 	// Close the stream if it's open
 	if (inputStream->IsStreamOpen())
 	{
@@ -45,7 +80,56 @@ void RtStreamMixer::AddInputStream(RtInputStream^ inputStream, String^ name)
 	inputStream->Open();
 
 	// Add the string to our internal list
-	inputStreams[name] = inputStream;
+	inputs[inputStream->Name] = gcnew RtMixerInput(inputStream);
+} // end AddInputStream
+
+void RtStreamMixer::AddInputStream(RtInputStream^ inputStream, float gain, float pan)
+{
+	if (inputStream->Name == "")
+	{
+		// FIXME: Throw an exception here
+		Console::WriteLine("[Error]: Adding InputStreams without names is unsupported! Ignoring stream.");
+		return;
+	} // end if
+
+	// Close the stream if it's open
+	if (inputStream->IsStreamOpen())
+	{
+		inputStream->Close();
+	} // end if
+
+	// Reset the format to our required format and then reopen the stream
+	inputStream->Format->type = Format->type;
+	inputStream->Format->sampleRate = Format->sampleRate;
+	inputStream->Open();
+
+	// Add the string to our internal list
+	inputs[inputStream->Name] = gcnew RtMixerInput(inputStream, gain, pan);
+} // end AddInputStream
+
+// Add an input stream to the mixer
+void RtStreamMixer::AddInputStream(RtMixerInput^ input)
+{
+	if (input->InputStream->Name == "")
+	{
+		// FIXME: Throw an exception here
+		Console::WriteLine("[Error]: Adding InputStreams without names is unsupported! Ignoring stream.");
+		return;
+	} // end if
+
+	// Close the stream if it's open
+	if (input->InputStream->IsStreamOpen())
+	{
+		input->InputStream->Close();
+	} // end if
+
+	// Reset the format to our required format and then reopen the stream
+	input->InputStream->Format->type = Format->type;
+	input->InputStream->Format->sampleRate = Format->sampleRate;
+	input->InputStream->Open();
+
+	// Add the string to our internal list
+	inputs[input->InputStream->Name] = input;
 } // end AddInputStream
 
 // Add an outputstream to the mixer
@@ -82,9 +166,9 @@ void RtStreamMixer::AdjustPan(String^ inputName, float pan)
 // Start the mixer
 void RtStreamMixer::Start()
 {
-	for each(KeyValuePair<String^, RtInputStream^>^ kvp in inputStreams)
+	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
-		kvp->Value->Start();
+		kvp->Value->InputStream->Start();
 	} // end for
 
 	outputStream->Start();
@@ -93,9 +177,9 @@ void RtStreamMixer::Start()
 // Stop the mixer
 void RtStreamMixer::Stop()
 {
-	for each(KeyValuePair<String^, RtInputStream^>^ kvp in inputStreams)
+	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
-		kvp->Value->Stop();
+		kvp->Value->InputStream->Stop();
 	} // end for
 
 	outputStream->Stop();
@@ -109,18 +193,37 @@ bool RtStreamMixer::IsRunning()
 // Callback Event Handler
 void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 {
-	// FIXME: What should this really be set to for size?!
 	array<float>^ tempBuff = gcnew array<float>(outputStream->Frames * outputStream->Format->channels);
 	array<float>^ inputBuff = gcnew array<float>(outputStream->Frames * outputStream->Format->channels);
 
-	for each(KeyValuePair<String^, RtInputStream^>^ kvp in inputStreams)
+	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
-		RtInputStream^ inputStream = kvp->Value;
+		RtInputStream^ inputStream = kvp->Value->InputStream;
 		int floatsRead = inputStream->Read(inputBuff);
+		float gain = kvp->Value->Gain;
+		float leftGain = gain;
+		float rightGain = gain;
+
+		// Currently, we only support pan on 2 channel inputs
+		if (inputStream->Format->channels == 2)
+		{
+			leftGain = Convert::ToSingle(Math::Cos((kvp->Value->Pan + 1) * Math::PI / 4) * kvp->Value->Gain);
+			rightGain = Convert::ToSingle(Math::Cos((kvp->Value->Pan - 1) * Math::PI / 4) * kvp->Value->Gain);
+			//Console::WriteLine("Values are: {0}, {1}, {2}, {3}", leftGain, rightGain, kvp->Value->Pan, kvp->Value->Gain);
+		} // end if
 
 		for(int idx = 0; idx < floatsRead; idx++)
 		{
-			tempBuff[idx] += inputBuff[idx];
+			// This code assumes interleaved audio! 
+			if (idx % 2 == 0)
+			{
+				gain = leftGain;
+			}
+			else
+			{
+				gain = rightGain;
+			} // end if
+			tempBuff[idx] += (inputBuff[idx] * gain);
 		} // end for
 	} // end for
 
