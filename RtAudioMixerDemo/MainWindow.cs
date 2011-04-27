@@ -31,6 +31,15 @@ namespace RtAudioMixerDemo
             priorityBox.DataSource = Enum.GetValues(typeof(ProcessPriorityClass));
             priorityBox.SelectedIndex = priorityBox.FindString("AboveNormal");
 
+            // SampleRates
+            sampleBox.Items.Add("4000");
+            sampleBox.Items.Add("8000");
+            sampleBox.Items.Add("11025");
+            sampleBox.Items.Add("16000");
+            sampleBox.Items.Add("22050");
+            sampleBox.Items.Add("44100");
+            sampleBox.SelectedIndex = 2;
+
             enumerateDevices();
         } // end MainWindow
 
@@ -61,8 +70,13 @@ namespace RtAudioMixerDemo
         {
             List<string> inputStrings = inputsBox.CheckedItems.OfType<String>().ToList<String>();
 
+            RtAudio.StreamOptions options = new RtAudio.StreamOptions();
+            options.numberOfBuffers = 6;
+            options.flags = (int)(RtAudioStreamFlags.RTAUDIO_MINIMIZE_LATENCY | RtAudioStreamFlags.RTAUDIO_SCHEDULE_REALTIME);
+            options.priority = 1;
+
             // Mixer format must be set before inputs are added!
-            //mixer.Format.sampleRate = 22050;
+            mixer.Format.sampleRate = Convert.ToUInt32(sampleBox.SelectedItem as String);
 
             foreach (string selectedInput in inputStrings)
             {
@@ -74,6 +88,7 @@ namespace RtAudioMixerDemo
                     {
                         RtInputStream inputStream = new RtInputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 22050, 32, 512);
                         inputStream.selectInputDevice(idx);
+                        inputStream.Format.options = options;
                        
                         // Important; RtStreamMixer requires streams to be named uniquely.
                         inputStream.Name = selectedInput;
@@ -92,6 +107,7 @@ namespace RtAudioMixerDemo
                 {
                     RtOutputStream outputStream = new RtOutputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
                     outputStream.selectOutputDevice(idx);
+                    outputStream.Format.options = options;
 
                     mixer.SetOutputStream(outputStream);
                 } // end if

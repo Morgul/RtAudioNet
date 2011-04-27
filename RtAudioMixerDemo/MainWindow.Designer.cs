@@ -39,6 +39,8 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.stopButton = new System.Windows.Forms.Button();
             this.startButton = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.sampleBox = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -48,6 +50,8 @@
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.sampleBox);
+            this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.priorityBox);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(13, 13);
@@ -66,7 +70,7 @@
             this.priorityBox.FormattingEnabled = true;
             this.priorityBox.Location = new System.Drawing.Point(95, 20);
             this.priorityBox.Name = "priorityBox";
-            this.priorityBox.Size = new System.Drawing.Size(398, 21);
+            this.priorityBox.Size = new System.Drawing.Size(152, 21);
             this.priorityBox.TabIndex = 1;
             this.priorityBox.SelectedIndexChanged += new System.EventHandler(this.priorityBox_SelectedIndexChanged);
             // 
@@ -169,6 +173,23 @@
             this.startButton.UseVisualStyleBackColor = true;
             this.startButton.Click += new System.EventHandler(this.startButton_Click);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(253, 20);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(68, 13);
+            this.label4.TabIndex = 2;
+            this.label4.Text = "SampleRate:";
+            // 
+            // sampleBox
+            // 
+            this.sampleBox.FormattingEnabled = true;
+            this.sampleBox.Location = new System.Drawing.Point(327, 20);
+            this.sampleBox.Name = "sampleBox";
+            this.sampleBox.Size = new System.Drawing.Size(166, 21);
+            this.sampleBox.TabIndex = 3;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -203,6 +224,8 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button stopButton;
         private System.Windows.Forms.Button startButton;
+        private System.Windows.Forms.ComboBox sampleBox;
+        private System.Windows.Forms.Label label4;
     }
 }
 
