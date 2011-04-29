@@ -57,44 +57,12 @@ namespace RtAudioNet_Test_Suite
         {
             InitializeComponent();
 
-            // Circular Buffer Tests
-            /*
-            CircularBuffer<byte> cb = new CircularBuffer<byte>(512, true);
-            Console.WriteLine("cb Cap: {0}", cb.Capacity);
-            cb.Add((byte)255);
-            Console.WriteLine("cb Cap: {0}", cb.Capacity);
-            cb.Add((byte)255);
-            Console.WriteLine("cb Cap: {0}", cb.Capacity);
-            cb.Add((byte)255);
-            Console.WriteLine("cb Cap: {0}", cb.Capacity);
-            cb.Add((byte)128);
-            Console.WriteLine("cb Cap: {0}", cb.Capacity);
-            cb.Add((byte)255);
-            Console.WriteLine("cb Cap: {0}", cb.Capacity);
-            cb.Add((byte)255);
-            Console.WriteLine("cb Cap: {0}", cb.Capacity);
-
-            Console.WriteLine("Count: {0}", cb.Count);
-            */
-
             buffer = new Byte[512];
 
             audio = new RtAudio();
-            /*
-            audio.rtErrorDebugWarning += new EventHandler<RtErrorEventArgs>(handleRtError);
-            audio.rtErrorDriverError += new EventHandler<RtErrorEventArgs>(handleRtError); 
-            audio.rtErrorInvalidDevice += new EventHandler<RtErrorEventArgs>(handleRtError);
-            audio.rtErrorInvalidParameter += new EventHandler<RtErrorEventArgs>(handleRtError); 
-            audio.rtErrorInvalidUse += new EventHandler<RtErrorEventArgs>(handleRtError); 
-            audio.rtErrorMemoryError += new EventHandler<RtErrorEventArgs>(handleRtError); 
-            audio.rtErrorNoDevicesFound += new EventHandler<RtErrorEventArgs>(handleRtError); 
-            audio.rtErrorSystemError += new EventHandler<RtErrorEventArgs>(handleRtError); 
-            audio.rtErrorThreadError += new EventHandler<RtErrorEventArgs>(handleRtError); 
-            audio.rtErrorUnspecified += new EventHandler<RtErrorEventArgs>(handleRtError);
-            audio.rtErrorWarning += new EventHandler<RtErrorEventArgs>(handleRtError);
-            */
 
             //audio1 = new RtAudio();
+
             mixer = new RtStreamMixer();
 
             List<RtAudio.Api> compileApis = RtAudio.getCompiledApi();
@@ -133,11 +101,6 @@ namespace RtAudioNet_Test_Suite
                 } // end if
             } // end for
         }
-
-        void handleRtError(object sender, RtErrorEventArgs error)
-        {
-            Console.WriteLine("[RtError] {0}", error.Message);
-        } // end handleRtError
 
         int loopbackCallback1(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, Object userData)
         {
@@ -197,7 +160,6 @@ namespace RtAudioNet_Test_Suite
                 RtAudio.StreamOptions options = new RtAudio.StreamOptions();
                 options.priority = (int)RtAudioStreamFlags.RTAUDIO_SCHEDULE_REALTIME;
                 options.flags = (int)RtAudioStreamFlags.RTAUDIO_MINIMIZE_LATENCY;
-
 
                 //uint frames = 512;
 
