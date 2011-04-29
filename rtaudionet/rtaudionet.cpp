@@ -79,32 +79,72 @@ namespace RtAudioNet
 	// Returns the audio API specifier for the current instance of RtAudio.
 	RtAudio::Api RtAudio::getCurrentApi()
 	{
-		return static_cast<RtAudio::Api>(_rtaudio->getCurrentApi());
+		try
+		{
+    		return static_cast<RtAudio::Api>(_rtaudio->getCurrentApi());
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return Api::UNSPECIFIED;
+		} // end try/catch
 	} // end getCurrentApi
 	
 	// A public function that queries for the number of audio devices available.
 	unsigned int RtAudio::getDeviceCount()
 	{
-		return _rtaudio->getDeviceCount();
+		try
+		{
+    		return _rtaudio->getDeviceCount();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return 0;
+		} // end try/catch
 	} // end getDeviceCount
 	
 	// Return an RtAudio::DeviceInfo structure for a specified device number.
 	RtAudio::DeviceInfo^ RtAudio::getDeviceInfo(unsigned int device)
 	{
-		// Get the unmanaged DeviceInfo class
-		return gcnew RtAudio::DeviceInfo(_rtaudio->getDeviceInfo(device));
+		try
+		{
+    		// Get the unmanaged DeviceInfo class
+    		return gcnew RtAudio::DeviceInfo(_rtaudio->getDeviceInfo(device));
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return nullptr;
+		} // end try/catch
 	} // end getDeviceInfo
 	
 	// A function that returns the index of the default output device.
 	unsigned int RtAudio::getDefaultOutputDevice()
 	{
-		return _rtaudio->getDefaultOutputDevice();
+		try
+		{
+    		return _rtaudio->getDefaultOutputDevice();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return 0;
+		} // end try/catch
 	} // end getDefaultOutputDevice
 	
 	// A function that returns the index of the default input device.
 	unsigned int RtAudio::getDefaultInputDevice()
 	{
-		return _rtaudio->getDefaultInputDevice();
+		try
+		{
+    		return _rtaudio->getDefaultInputDevice();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return 0;
+		} // end try/catch
 	} // end getDefaultInputDevice
 	
 	// A public function for opening a stream with the specified parameters.
@@ -134,61 +174,136 @@ namespace RtAudioNet
 	// A function that closes a stream and frees any associated stream memory.
 	void RtAudio::closeStream()
 	{
-		_rtaudio->closeStream();
+		try
+		{
+    		_rtaudio->closeStream();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+		} // end try/catch
 	} // end closeStream()
 	
 	// A function that starts a stream.
 	void RtAudio::startStream()
 	{
-		_rtaudio->startStream();
+		try
+		{
+    		_rtaudio->startStream();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+		} // end try/catch
 	} // end startStream
 	
 	// Stop a stream, allowing any samples remaining in the output queue to be played.
 	void RtAudio::stopStream()
 	{
-		_rtaudio->stopStream();
+		try
+		{
+    		_rtaudio->stopStream();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+		} // end try/catch
 	} // end stopStream
 	
 	// Stop a stream, discarding any samples remaining in the input/output queue.
 	void RtAudio::abortStream()
 	{
-		_rtaudio->abortStream();
+		try
+		{
+    		_rtaudio->abortStream();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+		} // end try/catch
 	} // end abortStream
 	
 	// Returns true if a stream is open and false if not.
 	bool RtAudio::isStreamOpen()
 	{
-		return _rtaudio->isStreamOpen();
+		try
+		{
+    		return _rtaudio->isStreamOpen();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return false;
+		} // end try/catch
 	} // end isStreamOpen()
 	
 	// Returns true if the stream is running and false if it is stopped or not open.
 	bool RtAudio::isStreamRunning()
 	{
-		return _rtaudio->isStreamRunning();
+		try
+		{
+    		return _rtaudio->isStreamRunning();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return false;
+		} // end try/catch
 	} // end isStreamRunning
 	
 	// Returns the number of elapsed seconds since the stream was started.
 	double RtAudio::getStreamTime()
 	{
-		return _rtaudio->getStreamTime();
+		try
+		{
+    		return _rtaudio->getStreamTime();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return 0.0;
+		} // end try/catch
 	} // end getStreamTime
 	
 	// Returns the internal stream latency in sample frames.
 	long RtAudio::getStreamLatency()
 	{
-		return _rtaudio->getStreamLatency();
+		try
+		{
+    		return _rtaudio->getStreamLatency();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return -1;
+		} // end try/catch
 	} // end getStreamLatency
 	
 	// Returns actual sample rate in use by the stream.
 	unsigned int RtAudio::getStreamSampleRate()
 	{
-		return _rtaudio->getStreamSampleRate();
+		try
+		{
+    		return _rtaudio->getStreamSampleRate();
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+			return 0;
+		} // end try/catch
 	} // end getStreamSampleRate
 	
 	// Specify whether warning messages should be printed to stderr.
 	void RtAudio::showWarnings(bool value)
 	{
-		_rtaudio->showWarnings(value);
+		try
+		{
+    		_rtaudio->showWarnings(value);
+		}
+        catch (::RtError &exception)
+		{
+			throwError(&exception);
+		} // end try/catch
 	} // end showWarnings
 	
 	/// Protected \\\

@@ -30,137 +30,181 @@ using namespace System;
 
 namespace RtAudioNet
 {
-	public ref class RtErrorEventArgs: public EventArgs
-	{
-	private:
-		String^ msg;
-	
+	// Generic Exception for handling RtErrors.
+	public ref class RtAudioException: ApplicationException
+    {
 	public:
-		RtErrorEventArgs()
-		{
-			msg = ""; 
-		} // end RtErrorEventArgs
+		RtAudioException() : ApplicationException() { };
 
-		RtErrorEventArgs(String^ messageData)
-		{
-			msg = messageData; 
-		} // end RtErrorEventArgs
-		
-		property String^ Message 
-		{
-			String^ get()
-			{
-				return msg;
-			} // end get
-		
-			void set(String^ value)
-			{
-				msg = value;
-			} // end set
-		} // end Message
-	}; // end RtErrorEventArgs
+        RtAudioException(String^ message) : ApplicationException(message) { };
+        
+        RtAudioException(String^ message, Exception^ innerException) : ApplicationException(message, innerException) { }; 
+
+    }; // end RtAudioException
+
+	public ref class RtAudioNoDevicesFoundException : RtAudioException
+    {
+	public:
+		RtAudioNoDevicesFoundException() : RtAudioException() { };
+
+		RtAudioNoDevicesFoundException(String^ message) : RtAudioException(message) { };
+        
+        RtAudioNoDevicesFoundException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+    }; // end RtAudioNoDevicesFoundException
+
+    public ref class RtAudioInvalidDeviceException : RtAudioException
+    {
+	public:
+		RtAudioInvalidDeviceException() : RtAudioException() { };
+
+        RtAudioInvalidDeviceException(String^ message) : RtAudioException(message) { };
+        
+        RtAudioInvalidDeviceException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+    }; // end RtAudioInvalidDeviceException
+    
+	public ref class RtAudioMemoryErrorException : RtAudioException
+    {
+	public:
+		RtAudioMemoryErrorException() : RtAudioException() { };
+
+        RtAudioMemoryErrorException(String^ message) : RtAudioException(message) { };
+        
+        RtAudioMemoryErrorException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+    }; // end RtAudioMemoryErrorException
+    
+	public ref class RtAudioInvalidParameterException : RtAudioException
+    {
+	public:
+		RtAudioInvalidParameterException() : RtAudioException() { };
+
+        RtAudioInvalidParameterException(String^ message) : RtAudioException(message) { };
+        
+        RtAudioInvalidParameterException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+    }; // end RtAudioInvalidParameterException
+    
+	public ref class RtAudioInvalidUseException : RtAudioException
+    {
+	public:
+		RtAudioInvalidUseException() : RtAudioException() { };
+
+        RtAudioInvalidUseException(String^ message) : RtAudioException(message) { };
+        
+        RtAudioInvalidUseException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+    }; // end RtAudioInvalidUseException
+    
+	public ref class RtAudioDriverErrorException : RtAudioException
+    {
+	public:
+		RtAudioDriverErrorException() : RtAudioException() { };
+
+        RtAudioDriverErrorException(String^ message) : RtAudioException(message) { };
+        
+        RtAudioDriverErrorException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+    }; // end RtAudioDriverErrorException
+    
+	public ref class RtAudioSystemErrorException : RtAudioException
+    {
+	public:
+		RtAudioSystemErrorException() : RtAudioException() { };
+
+        RtAudioSystemErrorException(String^ message) : RtAudioException(message) { };
+        
+        RtAudioSystemErrorException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+    }; // end RtAudioSystemErrorException
+
+    public ref class RtAudioThreadErrorException : RtAudioException
+    {
+	public:
+		RtAudioThreadErrorException() : RtAudioException() { };
+
+        RtAudioThreadErrorException(String^ message) : RtAudioException(message) { };
+        
+        RtAudioThreadErrorException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+    }; // end RtAudioThreadErrorException
 
 	// The intention is for this clase to be used as a base clase by any other class that needs to work
 	// with ::RtError. When an ::RtError is returned, the class would call throwError, and the correct
-	// event will fire. User's code would handle the events, without being aware of the underlying 
-	// ::RtError class, or this mechanic
+	// exception will fire.
 	public ref class RtError
 	{
 	public:
-		event EventHandler<RtErrorEventArgs^>^ rtErrorWarning;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorDebugWarning;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorUnspecified;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorNoDevicesFound;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorInvalidDevice;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorMemoryError;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorInvalidParameter;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorInvalidUse;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorDriverError;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorSystemError;
-		event EventHandler<RtErrorEventArgs^>^ rtErrorThreadError;
-
 		void throwError(::RtError* error)
 		{
-			RtErrorEventArgs^ args = gcnew RtErrorEventArgs();
-
 			// Handle error types appropriately
 			switch(error->getType())
 			{
 				case ::RtError::WARNING:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorWarning(this, args);
+					throw gcnew RtAudioException(gcnew String(error->what()));
 					break;
 				} // end case
 
 				case ::RtError::DEBUG_WARNING:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorDebugWarning(this, args);
+					throw gcnew RtAudioException(gcnew String(error->what()));
 					break;
 				} // end case
 
 				case ::RtError::NO_DEVICES_FOUND:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorNoDevicesFound(this, args);
+					throw gcnew RtAudioNoDevicesFoundException(gcnew String(error->what()));
 					break;
 				} // end case
 
 				case ::RtError::INVALID_DEVICE:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorInvalidDevice(this, args);
+					throw gcnew RtAudioInvalidDeviceException(gcnew String(error->what()));
 					break;
 				} // end case
 
 				case ::RtError::MEMORY_ERROR:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorMemoryError(this, args);
+					throw gcnew RtAudioMemoryErrorException(gcnew String(error->what()));
 					break;
 				} // end case
 
 				case ::RtError::INVALID_PARAMETER:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorInvalidParameter(this, args);
+					throw gcnew RtAudioInvalidParameterException(gcnew String(error->what()));
 					break;
 				} // end case
 
 				case ::RtError::INVALID_USE:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorInvalidUse(this, args);
+					throw gcnew RtAudioInvalidUseException(gcnew String(error->what()));
 					break;
 				} // end case
 
 				case ::RtError::DRIVER_ERROR:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorDriverError(this, args);
+					throw gcnew RtAudioDriverErrorException(gcnew String(error->what()));
 					break;
 				}// end case
 
 				case ::RtError::SYSTEM_ERROR:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorSystemError(this, args);
+					throw gcnew RtAudioSystemErrorException(gcnew String(error->what()));
 					break;
 				} // end case
 
 				case ::RtError::THREAD_ERROR:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorThreadError(this, args);
+					throw gcnew RtAudioThreadErrorException(gcnew String(error->what()));
 					break;
 				 } // end case
 
 				case ::RtError::UNSPECIFIED:
 				default:
 				{
-					args->Message = gcnew String(error->what());
-					rtErrorUnspecified(this, args);
+					throw gcnew RtAudioException(gcnew String(error->what()));
 					break;
 				} // end case
 			} // end switch
