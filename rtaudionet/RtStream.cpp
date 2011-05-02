@@ -118,6 +118,14 @@ namespace RtStream
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		
+		if (Format == nullptr)
+		{
+			Format = gcnew RtStreamFormat();
+			Format->sampleRate = 22050;
+			Format->channels = 2;
+			Format->bitsPerSample = 32;
+		} // end if
+
 		// (Frames per sample * channels) * numSamplesToBuffer
 		internalBuffer = gcnew CircularBuffer<float>((Frames * Format->channels * 2), true);
 
@@ -256,6 +264,14 @@ namespace RtStream
 	{
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
+
+		if (Format == nullptr)
+		{
+			Format = gcnew RtStreamFormat();
+			Format->sampleRate = 22050;
+			Format->channels = 2;
+			Format->bitsPerSample = 32;
+		} // end if
 		
 		// (Frames per sample * channels) * numSamplesToBuffer
 		internalBuffer = gcnew CircularBuffer<float>((Frames * Format->channels * 2), true);
@@ -395,6 +411,14 @@ namespace RtStream
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
+
+		if (Format == nullptr)
+		{
+			Format = gcnew RtStreamFormat();
+			Format->sampleRate = 22050;
+			Format->channels = 2;
+			Format->bitsPerSample = 32;
+		} // end if
 		
 		// (Frames per sample * channels * bytes) * numSamplesToBuffer in an int	
 		//internalBuffer = gcnew CircularBuffer<unsigned char>((frames * Format->channels * 4 * 2), true);

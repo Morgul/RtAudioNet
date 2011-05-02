@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "rtaudionet.h"
+#include "RtAudioNet.h"
 #include "CircularBuffer.h"
 
 using namespace System::Runtime::InteropServices;
@@ -160,13 +160,13 @@ namespace RtStream
 		RtInputStream() { Frames = 512; initialize(); };
 
 		// Default Constructor
-		RtInputStream(unsigned int frames) {this->Frames = frames; initialize();};
+		RtInputStream(unsigned int frames) {Frames = frames; initialize();};
 
 		// Format constructor
 		RtInputStream(RtStreamFormat^ format){ Format = format; Frames = 512; initialize();};
 
 		// Format constructor
-		RtInputStream(RtStreamFormat^ format, unsigned int frames){ Format = format; this->Frames = frames; initialize();};
+		RtInputStream(RtStreamFormat^ format, unsigned int frames){ Format = format; Frames = frames; initialize();};
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
 		RtInputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample) 
@@ -174,7 +174,7 @@ namespace RtStream
 
 		// Format constructor (I'm sorry for this terribly long inline constructor, buuut...) 
 		RtInputStream(::RtAudioNet::RtAudioFormat type, unsigned int channels, unsigned int sampleRate, unsigned int bitsPerSample, unsigned int frames)
-		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; this->Frames = frames; initialize(); };
+		{ RtStreamFormat^ format = gcnew RtStreamFormat(); format->type = type; format->channels = channels; format->sampleRate = sampleRate; format->bitsPerSample = bitsPerSample; Format = format; Frames = frames; initialize(); };
 
 		// Default Destructor
 		~RtInputStream();

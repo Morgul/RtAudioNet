@@ -17,14 +17,13 @@ namespace RtAudioMixerDemo
     {
         private Process process = null;
         private RtStreamMixer mixer = null;
-        private RtAudio rtaudio = null;
+        private RtAudioManager manager = null;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            mixer = new RtStreamMixer();
-            rtaudio = new RtAudio();
+            manager = RtAudioManager.GetInstance();
 
             // Process Priority
             process = Process.GetCurrentProcess();
@@ -40,80 +39,49 @@ namespace RtAudioMixerDemo
             sampleBox.Items.Add("44100");
             sampleBox.SelectedIndex = 2;
 
+            apiBox.DataSource = Enum.GetValues(typeof(RtAudio.Api));
+            apiBox.SelectedIndex = apiBox.FindString("WINDOWS_ASIO");
+
+
             enumerateDevices();
         } // end MainWindow
 
         private void enumerateDevices()
         {
             // Enumerate Devices
-            uint deviceCount = rtaudio.getDeviceCount();
-
-            for (uint idx = 0; deviceCount > idx; idx++)
+            foreach (KeyValuePair<String, int> kvp in manager.InputDevices)
             {
-                RtAudio.DeviceInfo info = rtaudio.getDeviceInfo(idx);
+                inputsBox.Items.Add(kvp.Key);
+            } // end foreach
 
-                if (info.inputChannels > 0)
-                {
-                    inputsBox.Items.Add(info.name);
-                } // end if
-
-                if (info.outputChannels > 0)
-                {
-                    outputBox.Items.Add(info.name);
-                    outputBox.SelectedIndex = 0;
-                } // end if
-            } // end for
-
+            foreach (KeyValuePair<String, int> kvp in manager.OutputDevices)
+            {
+                outputBox.Items.Add(kvp.Key);
+            } // end foreach
         } // end enumerateDevices 
 
         private void startButton_Click(object sender, EventArgs e)
         {
             List<string> inputStrings = inputsBox.CheckedItems.OfType<String>().ToList<String>();
 
-            RtAudio.StreamOptions options = new RtAudio.StreamOptions();
-            options.numberOfBuffers = 6;
-            options.flags = (int)(RtAudioStreamFlags.RTAUDIO_MINIMIZE_LATENCY | RtAudioStreamFlags.RTAUDIO_SCHEDULE_REALTIME);
-            options.priority = 1;
+            int sampleRate = Convert.ToInt32(sampleBox.SelectedItem as String);
 
-            // Mixer format must be set before inputs are added!
-            mixer.Format.sampleRate = Convert.ToUInt32(sampleBox.SelectedItem as String);
-
-            foreach (string selectedInput in inputStrings)
-            {
-                for (int idx = 0; rtaudio.getDeviceCount() > idx; idx++)
-                {
-                    RtAudio.DeviceInfo info = rtaudio.getDeviceInfo((uint)idx);
-
-                    if (info.name.Contains(selectedInput))
-                    {
-                        RtInputStream inputStream = new RtInputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 22050, 32, 512);
-                        inputStream.selectInputDevice(idx);
-                        inputStream.Format.options = options;
-                       
-                        // Important; RtStreamMixer requires streams to be named uniquely.
-                        inputStream.Name = selectedInput;
-
-                        mixer.AddInputStream(inputStream);
-                    } // end if
-                } // end for
-            } // end foreach
- 
             string selectedOutput = outputBox.SelectedItem as String;
-            for (int idx = 0; rtaudio.getDeviceCount() > idx; idx++)
+
+            RtAudio.Api api = (RtAudio.Api) apiBox.SelectedIndex;
+
+            Console.WriteLine("Selected API: {0}", api.ToString());
+            // Try to get the global instance. If we fail, make our own.
+            try
             {
-                RtAudio.DeviceInfo info = rtaudio.getDeviceInfo((uint)idx);
+                manager = RtAudioManager.GetInstance();
+            }
+            catch (RtAudioManagerApiException exp)
+            {
+                manager = new RtAudioManager();
+            } // end try/catch
 
-                if (info.name.Contains(selectedOutput))
-                {
-                    RtOutputStream outputStream = new RtOutputStream(RtAudioFormat.RTAUDIO_FLOAT32, 2, 44100, 32, 512);
-                    outputStream.selectOutputDevice(idx);
-                    outputStream.Format.options = options;
-
-                    mixer.SetOutputStream(outputStream);
-                } // end if
-            } // end for
-
-
+            mixer = manager.CreateMixer(inputStrings, selectedOutput, sampleRate);
             mixer.Start();
 
             stopButton.Enabled = true;
