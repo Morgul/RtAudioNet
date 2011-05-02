@@ -99,7 +99,7 @@ namespace RtAudioNet {
 			unsigned int duplexChannels;	// Maximum simultaneous input/output channels supported by device.
 			bool isDefaultOutput;			// true if this is the default output device.
 			bool isDefaultInput;			// true if this is the default input device.
-			List<unsigned int> sampleRates;	// Supported sample rates (queried from list of standard rates).
+			List<unsigned int>^ sampleRates;	// Supported sample rates (queried from list of standard rates).
 			int nativeFormats;	// Bit mask of supported data formats.
 			
 			// Default constructor.
@@ -118,16 +118,14 @@ namespace RtAudioNet {
 				isDefaultInput = _info.isDefaultInput;
 				nativeFormats = _info.nativeFormats;
 				
-				List<unsigned int>^ sampleRateList = gcnew List<unsigned int>();
+				sampleRates = gcnew List<unsigned int>();
 		
 				// Get the sample rates
 				for(std::vector<unsigned int>::iterator it = _info.sampleRates.begin(); it != _info.sampleRates.end(); ++it) 
 				{
-					sampleRateList->Add(*it);
+					sampleRates->Add(*it);
 				} // end for
 				
-				// Set the sample rate to our converted list.
-				sampleRates.AddRange(sampleRateList);
 			} // end DefaultAudio
 		}; // end DeviceInfo
 		

@@ -133,6 +133,9 @@ namespace RtStream
 		// Optional name for the stream
 		property String^ Name;
 
+		// The Stream's DeviceID.
+		property int DeviceID;
+
 		// Called whenever the RtAudio callback is fired.
 		event EventHandler^ callbackFired;
 

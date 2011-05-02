@@ -76,7 +76,7 @@ namespace RtAudioMixerDemo
             {
                 manager = RtAudioManager.GetInstance();
             }
-            catch (RtAudioManagerApiException exp)
+            catch (RtAudioManagerApiException)
             {
                 manager = new RtAudioManager();
             } // end try/catch

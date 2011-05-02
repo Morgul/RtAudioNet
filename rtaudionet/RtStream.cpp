@@ -153,6 +153,7 @@ namespace RtStream
 	// Selects the correct input device
 	void RtInputStream::selectInputDevice(int devID)
 	{
+		DeviceID = devID;
 		inputStreamParams->deviceId = devID;
 		inputStreamParams->nChannels = Format->channels;
 	} // end selectInputDevice
@@ -299,6 +300,7 @@ namespace RtStream
 	// Selects the correct output device
 	void RtOutputStream::selectOutputDevice(int devID)
 	{
+		DeviceID = devID;
 		outputStreamParams->deviceId = devID;
 		outputStreamParams->nChannels = Format->channels;
 	} // end selectOutputDevice
@@ -420,6 +422,8 @@ namespace RtStream
 			Format->bitsPerSample = 32;
 		} // end if
 		
+		DeviceID = -1;
+
 		// (Frames per sample * channels * bytes) * numSamplesToBuffer in an int	
 		//internalBuffer = gcnew CircularBuffer<unsigned char>((frames * Format->channels * 4 * 2), true);
 
@@ -552,6 +556,7 @@ namespace RtStream
 	{
 		// Create our temporary buffer
 		unsigned int bytesToCopy = frames * Format->channels * (Format->bitsPerSample / 8);
+		int channels = Format->bitsPerSample;
 		array<float>^ tempBuff = gcnew array<float>(bytesToCopy);
 
 		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?

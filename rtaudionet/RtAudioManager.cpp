@@ -105,96 +105,84 @@ namespace RtStream
 		return devID;
 	} // end FindOutputDeviceByName
 
+	// Gets the device information for the given device id
+	::RtAudioNet::RtAudio::DeviceInfo^ RtAudioManager::GetDeviceInfo(int devID)	
+	{
+		return rtaudio->getDeviceInfo((unsigned int) devID);
+	} // end GetDeviceInfo
+
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<int>^ inputs, int output)
 	{
-		RtStreamMixer^ mixer = gcnew RtStreamMixer();
-
-		for each(int inputID in inputs)
+		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
+		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
+		RtStreamMixer^ mixer = nullptr;
+		if (inputs->Count < 2)
 		{
-			RtInputStream^ inputStream = gcnew RtInputStream(512);
-			inputStream->Name = String::Format("Input {0}", inputID);
-			inputStream->selectInputDevice(inputID);
+			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
+		}
+		else
+		{
+			mixer = gcnew RtStreamMixer();
+		} // end if
 
-			mixer->AddInputStream(inputStream);
-		} // end for
-
-		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
-		outputStream->selectOutputDevice(output);
-
-		mixer->SetOutputStream(outputStream);
-
-		return mixer;
+		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<String^>^ inputs, String^ output)
 	{
-		RtStreamMixer^ mixer = gcnew RtStreamMixer();
-
-		for each(String^ inputString in inputs)
+		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
+		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
+		RtStreamMixer^ mixer = nullptr;
+		if (inputs->Count < 2)
 		{
-			int inputID = FindInputDeviceByName(inputString);
-			RtInputStream^ inputStream = gcnew RtInputStream(512);
-			inputStream->Name = inputString;
-			inputStream->selectInputDevice(inputID);
+			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
+		}
+		else
+		{
+			mixer = gcnew RtStreamMixer();
+		} // end if
 
-			mixer->AddInputStream(inputStream);
-		} // end for
-
-		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
-		outputStream->selectOutputDevice(output);
-
-		mixer->SetOutputStream(outputStream);
-
-		return mixer;
+		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<int>^ inputs, int output, int sampleRate)
 	{
-		RtStreamMixer^ mixer = gcnew RtStreamMixer();
+		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
+		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
+		RtStreamMixer^ mixer = nullptr;
+		if (inputs->Count < 2)
+		{
+			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
+		}
+		else
+		{
+			mixer = gcnew RtStreamMixer();
+		} // end if
 		mixer->Format->sampleRate = sampleRate;
 
-		for each(int inputID in inputs)
-		{
-			RtInputStream^ inputStream = gcnew RtInputStream(512);
-			inputStream->Name = String::Format("Input {0}", inputID);
-			inputStream->selectInputDevice(inputID);
-
-			mixer->AddInputStream(inputStream);
-		} // end for
-
-		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
-		outputStream->selectOutputDevice(output);
-
-		mixer->SetOutputStream(outputStream);
-
-		return mixer;
+		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<String^>^ inputs, String^ output, int sampleRate)
 	{
-		RtStreamMixer^ mixer = gcnew RtStreamMixer();
+		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
+		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
+		RtStreamMixer^ mixer = nullptr;
+		if (inputs->Count < 2)
+		{
+			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
+		}
+		else
+		{
+			mixer = gcnew RtStreamMixer();
+		} // end if
 		mixer->Format->sampleRate = sampleRate;
 
-		for each(String^ inputString in inputs)
-		{
-			int inputID = FindInputDeviceByName(inputString);
-			RtInputStream^ inputStream = gcnew RtInputStream(512);
-			inputStream->Name = inputString;
-			inputStream->selectInputDevice(inputID);
-
-			mixer->AddInputStream(inputStream);
-		} // end for
-
-		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
-		outputStream->selectOutputDevice(output);
-
-		mixer->SetOutputStream(outputStream);
-
-		return mixer;
+		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
 	// Returns true if the list of devices changed.
@@ -241,6 +229,47 @@ namespace RtStream
 			DeviceEnumerationChanged(this, gcnew EventArgs());
 		} // end if
 	} // end OnEnumerateTimer
+
+	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::_createMixer(List<int>^ inputs, int output, RtStreamMixer^ mixer)
+	{
+		for each(int inputID in inputs)
+		{
+			RtInputStream^ inputStream = gcnew RtInputStream(512);
+			inputStream->Name = String::Format("Input {0}", inputID);
+			inputStream->selectInputDevice(inputID);
+
+			mixer->AddInputStream(inputStream);
+		} // end for
+
+		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
+		outputStream->selectOutputDevice(output);
+
+		mixer->SetOutputStream(outputStream);
+
+		return mixer;
+	} // end CreateMixer
+
+	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::_createMixer(List<String^>^ inputs, String^ output, RtStreamMixer^ mixer)
+	{
+		for each(String^ inputString in inputs)
+		{
+			int inputID = FindInputDeviceByName(inputString);
+			RtInputStream^ inputStream = gcnew RtInputStream(512);
+			inputStream->Name = inputString;
+			inputStream->selectInputDevice(inputID);
+
+			mixer->AddInputStream(inputStream);
+		} // end for
+
+		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
+		outputStream->selectOutputDevice(output);
+
+		mixer->SetOutputStream(outputStream);
+
+		return mixer;
+	} // end CreateMixer
 
 	//////////////////////////////////////////////////////////////////////////
 	/// Static Methods
