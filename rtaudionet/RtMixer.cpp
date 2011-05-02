@@ -1,9 +1,34 @@
+#pragma region License
+/*
+ * Copyright (c) 2011 Christopher S. Case
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+#pragma endregion
+
 #include "RtMixer.h"
 
 using namespace RtStream;
 
 //////////////////////////////////////////////////////////////////////////
-/// RtDuplexStream Class
+/// RtMixerInput Class
+#pragma region RtMixerInput
 
 // Constructor	
 RtMixerInput::RtMixerInput()
@@ -28,10 +53,11 @@ RtMixerInput::RtMixerInput(RtInputStream^ stream, float gain, float pan)
 	Pan = pan;
 	InputStream = stream;
 } // end RtMixerInput
-
+#pragma endregion
 
 //////////////////////////////////////////////////////////////////////////
 /// RtStreamMixer Class
+#pragma region RtStreamMixer
 
 // Default Constructor
 RtStreamMixer::RtStreamMixer()
@@ -40,6 +66,7 @@ RtStreamMixer::RtStreamMixer()
 	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
 	Format->sampleRate = 11025;
 	Format->channels = 2;
+	Format->bitsPerSample = 32;
 
 	FramesToBuffer = 1;
 
@@ -254,3 +281,78 @@ void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 		framesBuffered += 1;
 	} // end if
 } // end callbackHandler
+#pragma endregion
+
+
+//////////////////////////////////////////////////////////////////////////
+/// RtDuplexMixer Class
+#pragma region RtDuplexMixer
+// Default Constructor
+RtDuplexMixer::RtDuplexMixer()
+{
+	Format = gcnew RtStreamFormat();
+	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
+	Format->sampleRate = 11025;
+	Format->channels = 2;
+	Format->bitsPerSample = 32;
+
+	FramesToBuffer = 1;
+
+	running = false;
+
+	duplexStream = gcnew RtDuplexStream(512);
+} // end RtDuplexMixer
+
+// Default Destructor
+RtDuplexMixer::~RtDuplexMixer()
+{
+	Stop();
+
+	duplexStream->Abort();
+
+} // end ~RtDuplexMixer
+
+// Add an input stream to the mixer
+void RtDuplexMixer::AddInputStream(RtInputStream^ inputStream)
+{
+	duplexStream->selectInputDevice(inputStream->DeviceID);
+	duplexStream->Format = Format;
+} // end AddInputStream
+
+// Add an input stream to the mixer
+void RtDuplexMixer::AddInputStream(RtInputStream^ inputStream, float gain, float pan)
+{
+	duplexStream->selectInputDevice(inputStream->DeviceID);
+	duplexStream->Format = Format;
+} // end AddInputStream
+
+// Add an input stream to the mixer
+void RtDuplexMixer::AddInputStream(RtMixerInput^ input)
+{
+	duplexStream->selectInputDevice(input->InputStream->DeviceID);
+	duplexStream->Format = Format;
+} // AddInputStream
+
+// Add an outputstream to the mixer
+void RtDuplexMixer::SetOutputStream(RtOutputStream^ outputStream)
+{
+	duplexStream->selectOutputDevice(outputStream->DeviceID);
+	duplexStream->Format = Format;
+} // SetOutputStream
+
+// Start the mixer
+void RtDuplexMixer::Start()
+{
+	duplexStream->Open();
+	duplexStream->Start();
+} // end Start
+
+// Stop the mixer
+void RtDuplexMixer::Stop()
+{
+	duplexStream->Stop();
+	System::Threading::Thread::Sleep(50);
+	duplexStream->Abort();
+} // end Stop
+
+#pragma endregion

@@ -80,6 +80,9 @@ namespace RtStream
 		// Finds the output device id by name
 		int FindOutputDeviceByName(String^ name);
 
+		// Gets the device information for the given device id
+		::RtAudioNet::RtAudio::DeviceInfo^ GetDeviceInfo(int devID);
+
 		// Creates and returns a mixer based on the inputs and outputs
 		RtStreamMixer^ CreateMixer(List<int>^ inputs, int output);
 
@@ -115,6 +118,12 @@ namespace RtStream
 		static RtAudioManager^ GetInstance(::RtAudioNet::RtAudio::Api api);
 
 	protected:
+		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^  _createMixer(List<int>^ inputs, int output, RtStreamMixer^ mixer);
+
+		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^ _createMixer(List<String^>^ inputs, String^ output, RtStreamMixer^ mixer);
+
 		// Enumerate Devices
 		bool EnumerateDevices();	
 
