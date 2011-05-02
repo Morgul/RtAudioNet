@@ -25,7 +25,7 @@
 #include <msclr\marshal.h>
 #include <msclr\marshal_cppstd.h>
 
-#include "rtaudionet.h"
+#include "RtAudioNet.h"
 
 using namespace msclr::interop;
 using namespace System::Runtime::InteropServices;

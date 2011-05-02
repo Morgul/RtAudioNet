@@ -56,6 +56,14 @@ RtStreamMixer::RtStreamMixer()
 RtStreamMixer::~RtStreamMixer()
 {
 	Stop();
+
+	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
+	{
+		kvp->Value->InputStream->Abort();
+	} // end for
+
+	outputStream->Abort();
+
 } // end ~RtStreamMixer
 
 // Add an input stream to the mixer
