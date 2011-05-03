@@ -66,7 +66,7 @@ RtStreamMixer::RtStreamMixer()
 	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
 	Format->sampleRate = 11025;
 	Format->channels = 2;
-	Format->bitsPerSample = 32;
+	Format->bitsPerSample = 16;
 
 	FramesToBuffer = 1;
 
