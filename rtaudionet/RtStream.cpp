@@ -556,7 +556,10 @@ namespace RtStream
 	{
 		// Create our temporary buffer
 		unsigned int bytesToCopy = frames * Format->channels * (Format->bitsPerSample / 8);
-		int channels = Format->bitsPerSample;
+
+		// XXX: On Winows XP, this code gets an access violation:
+
+		/*
 		array<float>^ tempBuff = gcnew array<float>(bytesToCopy);
 
 		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?
@@ -564,6 +567,10 @@ namespace RtStream
 
 		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?
 		Marshal::Copy(tempBuff, 0, outputBufferPtr, bytesToCopy);
+		*/
+
+		// This is the absolute fastest option available to us, and it seems to work well.
+		memcpy(outputBufferPtr.ToPointer(), inputBufferPtr.ToPointer(), bytesToCopy);
 
 		// We always return zero.
 		return 0;
