@@ -67,6 +67,12 @@ namespace RtStream
 		array<float>^ tempBuff = gcnew array<float>(count);
 		int read = internalBuffer->Get(tempBuff, 0, count); 
 		Marshal::Copy(tempBuff, 0, IntPtr(buffer + offset), read);
+
+		if (read != count)
+		{
+			BufferUnderrun(this, gcnew EventArgs());
+		} // end if
+
 		return read;
 	} // end Read
 
@@ -209,16 +215,30 @@ namespace RtStream
 	} // end Stop
 	
 	// Stops the stream
+	void RtInputStream::Finish()
+	{
+		rtaudio->closeStream();
+	} // end Stop
+
+	// Aborts the stream
 	void RtInputStream::Abort()
 	{
 		rtaudio->abortStream();
-	} // end Stop
+	} // end Abort
 	
 	// Read class required by the stream base class.
 	int RtInputStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
 	{
+		int dataRead = 0;
 		msclr::lock lk(internalBuffer);
-		return internalBuffer->Get(buffer, offset, count); 
+		dataRead = internalBuffer->Get(buffer, offset, count); 
+
+		if (dataRead != count)
+		{
+			BufferUnderrun(this, gcnew EventArgs());
+		} // end if
+
+		return dataRead;
 	} // end Read
 	
 	// Write class required by the stream base class.
@@ -250,7 +270,7 @@ namespace RtStream
 		lk.release();
 
 		// Fire the callback event.
-		callbackFired(this, nullptr);
+		CallbackFired(this, nullptr);
 		
 		// We always return zero.
 		return 0;
@@ -356,10 +376,16 @@ namespace RtStream
 	} // end Stop
 	
 	// Stops the stream
+	void RtOutputStream::Finish()
+	{
+		rtaudio->closeStream();
+	} // end Stop
+
+	// Aborts the stream
 	void RtOutputStream::Abort()
 	{
 		rtaudio->abortStream();
-	} // end Stop
+	} // end Abort
 
 	// Read class required by the stream base class.
 	int RtOutputStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
@@ -397,7 +423,7 @@ namespace RtStream
 		Marshal::Copy(tempBuff, 0, outputBufferPtr, bytesCopied);
 
 		// Fire the callback event.
-		callbackFired(this, nullptr);
+		CallbackFired(this, nullptr);
 		
 		// We always return zero.
 		return 0;
@@ -529,10 +555,16 @@ namespace RtStream
 	} // end Stop
 	
 	// Stops the stream
+	void RtDuplexStream::Finish()
+	{
+		rtaudio->closeStream();
+	} // end Stop
+
+	// Aborts the stream
 	void RtDuplexStream::Abort()
 	{
 		rtaudio->abortStream();
-	} // end Stop
+	} // end Abort
 
 	// Read class required by the stream base class.
 	int RtDuplexStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
