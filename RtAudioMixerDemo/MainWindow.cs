@@ -42,7 +42,6 @@ namespace RtAudioMixerDemo
             apiBox.DataSource = Enum.GetValues(typeof(RtAudio.Api));
             apiBox.SelectedIndex = apiBox.FindString("WINDOWS_ASIO");
 
-
             enumerateDevices();
         } // end MainWindow
 
@@ -58,6 +57,8 @@ namespace RtAudioMixerDemo
             {
                 outputBox.Items.Add(kvp.Key);
             } // end foreach
+
+            outputBox.SelectedIndex = 0;
         } // end enumerateDevices 
 
         private void startButton_Click(object sender, EventArgs e)

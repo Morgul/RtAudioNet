@@ -113,6 +113,9 @@ namespace RtStream
 		void Stop() { };
 
 		// Closes the stream
+		void Finish() { };
+
+		// Aborts the stream
 		void Abort() { };
 
 		// Is the stream a live stream, or a buffered stream?
@@ -137,8 +140,14 @@ namespace RtStream
 		property int DeviceID;
 
 		// Called whenever the RtAudio callback is fired.
-		event EventHandler^ callbackFired;
+		event EventHandler^ CallbackFired;
 
+		// Called whenever the RtAudio callback is fired.
+		event EventHandler^ BufferUnderrun;
+
+		// Called whenever the RtAudio callback is fired.
+		event EventHandler^ BufferOverrun;
+		
 		// Callback
 		::RtAudioNet::RtAudioNetCallback^ _callback;
 
@@ -204,6 +213,9 @@ namespace RtStream
 		void Stop();
 
 		// Closes the stream
+		void Finish();
+
+		// Aborts the stream
 		void Abort();
 
 		// Is the stream a live stream, or a buffered stream?
@@ -269,6 +281,9 @@ namespace RtStream
 		void Stop();
 
 		// Closes the stream
+		void Finish();
+
+		// Aborts the stream
 		void Abort();
 
 		// Is the stream a live stream, or a buffered stream?
@@ -340,6 +355,9 @@ namespace RtStream
 		void Stop();
 
 		// Closes the stream
+		void Finish();
+
+		// Aborts the stream
 		void Abort();
 
 		// Is the stream a live stream, or a buffered stream?

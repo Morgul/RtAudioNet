@@ -86,10 +86,10 @@ RtStreamMixer::~RtStreamMixer()
 
 	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
-		kvp->Value->InputStream->Abort();
+		kvp->Value->InputStream->Finish();
 	} // end for
 
-	outputStream->Abort();
+	outputStream->Finish();
 
 } // end ~RtStreamMixer
 
@@ -185,7 +185,7 @@ void RtStreamMixer::SetOutputStream(RtOutputStream^ outputStream)
 	this->outputStream = outputStream;
 
 	// Set our eventhandler
-	this->outputStream->callbackFired += gcnew EventHandler(this, &RtStreamMixer::callbackHandler);
+	this->outputStream->CallbackFired += gcnew EventHandler(this, &RtStreamMixer::callbackHandler);
 } // end SetOutputStream
 
 // Adjust the gain on the selected input
@@ -309,7 +309,7 @@ RtDuplexMixer::~RtDuplexMixer()
 {
 	Stop();
 
-	duplexStream->Abort();
+	duplexStream->Finish();
 
 } // end ~RtDuplexMixer
 
@@ -353,7 +353,7 @@ void RtDuplexMixer::Stop()
 {
 	duplexStream->Stop();
 	System::Threading::Thread::Sleep(50);
-	duplexStream->Abort();
+	duplexStream->Finish();
 } // end Stop
 
 #pragma endregion
