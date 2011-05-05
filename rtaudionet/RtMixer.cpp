@@ -262,24 +262,25 @@ void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 		} // end for
 	} // end for
 
-	internalBuffer->Put(tempBuff, 0, tempBuff->Length);
+	outputStream->Write(tempBuff);
+	//internalBuffer->Put(tempBuff, 0, tempBuff->Length);
 
 	// Should we be buffering, or should we be outputting?
-	if(running || framesBuffered >= FramesToBuffer)	
-	{
-		if (!running && framesBuffered >= FramesToBuffer)	
-		{
-			running = true;
-		} // end if
+	//if(running || framesBuffered >= FramesToBuffer)	
+	//{
+	//	if (!running && framesBuffered >= FramesToBuffer)	
+	//	{
+	//		running = true;
+	//	} // end if
 
-		internalBuffer->Get(tempBuff, 0, tempBuff->Length);
-		outputStream->Write(tempBuff);
+	//	internalBuffer->Get(tempBuff, 0, tempBuff->Length);
+	//	outputStream->Write(tempBuff);
 		//Console::WriteLine("Do Stuff!");
-	}
-	else
-	{
-		framesBuffered += 1;
-	} // end if
+	//}
+	//else
+	//{
+	//	framesBuffered += 1;
+	//} // end if
 } // end callbackHandler
 #pragma endregion
 

@@ -123,7 +123,7 @@ namespace RtStream
 			Format = gcnew RtStreamFormat();
 			Format->sampleRate = 22050;
 			Format->channels = 2;
-			Format->bitsPerSample = 32;
+			Format->bitsPerSample = 16;
 		} // end if
 
 		// (Frames per sample * channels) * numSamplesToBuffer
@@ -241,7 +241,7 @@ namespace RtStream
 
 		// Not sure this shouldn't be a memcopy. However, I know this works for managed types, and we don't lose that much speed. Future optimization?
 		Marshal::Copy(inputBufferPtr, tempBuff, 0, floatsToCopy);
-
+		
 		msclr::lock lk(internalBuffer);
 
 		// And now, we add out temp buffer to our main buffer.
@@ -271,7 +271,7 @@ namespace RtStream
 			Format = gcnew RtStreamFormat();
 			Format->sampleRate = 22050;
 			Format->channels = 2;
-			Format->bitsPerSample = 32;
+			Format->bitsPerSample = 16;
 		} // end if
 		
 		// (Frames per sample * channels) * numSamplesToBuffer
@@ -419,7 +419,7 @@ namespace RtStream
 			Format = gcnew RtStreamFormat();
 			Format->sampleRate = 22050;
 			Format->channels = 2;
-			Format->bitsPerSample = 32;
+			Format->bitsPerSample = 16;
 		} // end if
 		
 		DeviceID = -1;
