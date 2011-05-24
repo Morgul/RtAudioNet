@@ -78,7 +78,7 @@ namespace RtStream
 	// Finds the input device id by name
 	int RtAudioManager::FindInputDeviceByName(String^ name)
 	{
-		int devID = 0;	
+		int devID = -1;	
 		for each(KeyValuePair<String^, int>^ kvp in InputDevices)
 		{
 			if (kvp->Key->Contains(name))	
@@ -93,7 +93,7 @@ namespace RtStream
 	// Finds the output device id by name
 	int RtAudioManager::FindOutputDeviceByName(String^ name)
 	{
-		int devID = 0;	
+		int devID = -1;	
 		for each(KeyValuePair<String^, int>^ kvp in OutputDevices)
 		{
 			if (kvp->Key->Contains(name))	
