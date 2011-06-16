@@ -257,7 +257,11 @@ namespace RtStream
 			inputStream->Name = String::Format("Input {0}", inputID);
 			inputStream->selectInputDevice(inputID);
 
-			mixer->AddInputStream(inputStream);
+			try
+			{
+				mixer->AddInputStream(inputStream);
+			}
+			catch(System::Exception^) { /* TODO: Report this error. */ }
 		} // end for
 
 		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
@@ -278,7 +282,11 @@ namespace RtStream
 			inputStream->Name = inputString;
 			inputStream->selectInputDevice(inputID);
 
-			mixer->AddInputStream(inputStream);
+			try
+			{
+				mixer->AddInputStream(inputStream);
+			}
+			catch(System::Exception^) { /* TODO: Report this error. */ }
 		} // end for
 
 		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
@@ -298,7 +306,11 @@ namespace RtStream
 			inputStream->Name = String::Format("Input {0}", input["id"]);
 			inputStream->selectInputDevice(System::Convert::ToInt32(input["id"]));
 
-			mixer->AddInputStream(inputStream, System::Convert::ToSingle(input["gain"]), System::Convert::ToSingle(input["pan"]));
+			try
+			{
+				mixer->AddInputStream(inputStream, System::Convert::ToSingle(input["gain"]), System::Convert::ToSingle(input["pan"]));
+			}
+			catch(System::Exception^) { /* TODO: Report this error. */ }
 		} // end for
 
 		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
