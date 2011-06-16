@@ -114,6 +114,7 @@ void RtStreamMixer::AddInputStream(RtInputStream^ inputStream)
 	// Reset the format to our required format and then reopen the stream
 	inputStream->Format->type = Format->type;
 	inputStream->Format->sampleRate = Format->sampleRate;
+
 	inputStream->Open();
 
 	// Add the string to our internal list
