@@ -90,10 +90,13 @@ namespace RtStream
 		bool IsRunning();
 
 		// Output Format
-		RtStreamFormat^ Format;
+		property RtStreamFormat^ Format;
 
 		// Frames of audio to buffer
-		unsigned int FramesToBuffer;
+		property unsigned int FramesToBuffer;
+
+		// Overall Gain on the output of this mixer
+		property float OutputGain;
 
 		// Dictionary of mixer inputs
 		property Dictionary<String^, RtMixerInput^>^ Inputs { Dictionary<String^, RtMixerInput^>^ get() { return inputs;}; };

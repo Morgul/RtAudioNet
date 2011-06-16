@@ -70,6 +70,8 @@ RtStreamMixer::RtStreamMixer()
 
 	FramesToBuffer = 1;
 
+	OutputGain = 1;
+
 	// Internal buffer
 	internalBuffer = gcnew CircularBuffer<float>(1024, true);
 
@@ -264,6 +266,15 @@ void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 		} // end for
 	} // end for
 
+	// Optimixation; skip this loop if our gain is 1.
+	if (OutputGain != 1)
+	{
+		for(int idx = 0; idx < tempBuff->Length; idx++)
+		{
+			tempBuff[idx] = tempBuff[idx] * OutputGain;
+		} // end for
+	} // end if
+
 	outputStream->Write(tempBuff);
 	//internalBuffer->Put(tempBuff, 0, tempBuff->Length);
 
@@ -300,6 +311,8 @@ RtDuplexMixer::RtDuplexMixer()
 	Format->bitsPerSample = 32;
 
 	FramesToBuffer = 1;
+
+	OutputGain = 1;
 
 	running = false;
 
