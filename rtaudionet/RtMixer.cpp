@@ -191,11 +191,13 @@ void RtStreamMixer::SetOutputStream(RtOutputStream^ outputStream)
 // Adjust the gain on the selected input
 void RtStreamMixer::AdjustGain(String^ inputName, float gain)
 {
+	inputs[inputName]->Gain = gain;
 } // end AdjustGaim
 
 // Adjust the pan on the selected input
 void RtStreamMixer::AdjustPan(String^ inputName, float pan)
 {
+	inputs[inputName]->Pan = pan;
 } // end AdjustPan
 
 // Start the mixer

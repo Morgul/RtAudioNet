@@ -148,6 +148,24 @@ namespace RtStream
 	} // end CreateMixer
 
 	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::CreateMixer(List<Dictionary<String^, String^>^>^ inputs, int output)
+	{
+		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
+		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
+		RtStreamMixer^ mixer = nullptr;
+		if (inputs->Count < 2)
+		{
+			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
+		}
+		else
+		{
+			mixer = gcnew RtStreamMixer();
+		} // end if
+
+		return _createMixer(inputs, output, mixer);
+	} // end CreateMixer
+
+	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<int>^ inputs, int output, int sampleRate)
 	{
 		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
@@ -261,6 +279,26 @@ namespace RtStream
 			inputStream->selectInputDevice(inputID);
 
 			mixer->AddInputStream(inputStream);
+		} // end for
+
+		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
+		outputStream->selectOutputDevice(output);
+
+		mixer->SetOutputStream(outputStream);
+
+		return mixer;
+	} // end CreateMixer
+
+	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::_createMixer(List<Dictionary<String^, String^>^>^ inputs, int output, RtStreamMixer^ mixer)
+	{
+		for each(Dictionary<String^, String^>^ input in inputs)
+		{
+			RtInputStream^ inputStream = gcnew RtInputStream(512);
+			inputStream->Name = String::Format("Input {0}", input["id"]);
+			inputStream->selectInputDevice(System::Convert::ToInt32(input["id"]));
+
+			mixer->AddInputStream(inputStream, System::Convert::ToSingle(input["gain"]), System::Convert::ToSingle(input["pan"]));
 		} // end for
 
 		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
