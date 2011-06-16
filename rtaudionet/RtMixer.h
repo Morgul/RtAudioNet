@@ -95,6 +95,9 @@ namespace RtStream
 		// Frames of audio to buffer
 		unsigned int FramesToBuffer;
 
+		// Dictionary of mixer inputs
+		property Dictionary<String^, RtMixerInput^>^ Inputs { Dictionary<String^, RtMixerInput^>^ get() { return inputs;}; };
+
 	protected:
 		// Callback Event Handler
 		void callbackHandler(Object^ sender, EventArgs^ e);

@@ -90,6 +90,9 @@ namespace RtStream
 		RtStreamMixer^ CreateMixer(List<String^>^ inputs, String^ output);
 
 		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^ CreateMixer(List<Dictionary<String^, String^>^>^ inputs, int output);
+
+		// Creates and returns a mixer based on the inputs and outputs
 		RtStreamMixer^ CreateMixer(List<int>^ inputs, int output, int sampleRate);
 
 		// Creates and returns a mixer based on the inputs and outputs
@@ -123,6 +126,9 @@ namespace RtStream
 
 		// Creates and returns a mixer based on the inputs and outputs
 		RtStreamMixer^ _createMixer(List<String^>^ inputs, String^ output, RtStreamMixer^ mixer);
+
+		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^ _createMixer(List<Dictionary<String^, String^>^>^ inputs, int output, RtStreamMixer^ mixer);
 
 		// Enumerate Devices
 		bool EnumerateDevices();	
