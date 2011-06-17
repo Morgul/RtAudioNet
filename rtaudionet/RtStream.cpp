@@ -130,6 +130,7 @@ namespace RtStream
 			Format->sampleRate = 22050;
 			Format->channels = 2;
 			Format->bitsPerSample = 16;
+
 		} // end if
 
 		// (Frames per sample * channels) * numSamplesToBuffer
@@ -160,6 +161,10 @@ namespace RtStream
 	void RtInputStream::selectInputDevice(int devID)
 	{
 		DeviceID = devID;
+
+		RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(devID);
+		Format->channels = info->inputChannels;
+
 		inputStreamParams->deviceId = devID;
 		inputStreamParams->nChannels = Format->channels;
 	} // end selectInputDevice
