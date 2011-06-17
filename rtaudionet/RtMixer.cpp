@@ -234,11 +234,11 @@ bool RtStreamMixer::IsRunning()
 void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 {
 	array<float>^ tempBuff = gcnew array<float>(outputStream->Frames * outputStream->Format->channels);
-	array<float>^ inputBuff = gcnew array<float>(outputStream->Frames * outputStream->Format->channels);
 
 	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
 		RtInputStream^ inputStream = kvp->Value->InputStream;
+		array<float>^ inputBuff = gcnew array<float>(outputStream->Frames * inputStream->Format->channels);
 		int floatsRead = inputStream->Read(inputBuff);
 		float gain = kvp->Value->Gain;
 		float leftGain = gain;
@@ -254,16 +254,26 @@ void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 
 		for(int idx = 0; idx < floatsRead; idx++)
 		{
-			// This code assumes interleaved audio! 
-			if (idx % 2 == 0)
+			if (inputStream->Format->channels == 1)
 			{
-				gain = leftGain;
+				tempBuff[idx*2] += (inputBuff[idx] * leftGain);
+				tempBuff[idx*2+1] += (inputBuff[idx] * rightGain);
 			}
 			else
 			{
-				gain = rightGain;
+				// This code assumes interleaved audio! 
+				if (idx % 2 == 0)
+				{
+					gain = leftGain;
+				}
+				else
+				{
+					gain = rightGain;
+				} // end if
+
+				// TODO: This only works for 2 channels; add support for channels > 2.
+				tempBuff[idx] += (inputBuff[idx] * gain);
 			} // end if
-			tempBuff[idx] += (inputBuff[idx] * gain);
 		} // end for
 	} // end for
 
