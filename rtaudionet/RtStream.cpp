@@ -163,7 +163,16 @@ namespace RtStream
 		DeviceID = devID;
 
 		RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(devID);
-		Format->channels = info->inputChannels;
+		int channels = info->inputChannels;
+
+		if(channels > 0)
+		{
+			Format->channels = channels;
+		}
+		else
+		{
+			Format->channels = 2;
+		} // end if
 
 		inputStreamParams->deviceId = devID;
 		inputStreamParams->nChannels = Format->channels;
