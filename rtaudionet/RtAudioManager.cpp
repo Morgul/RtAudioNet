@@ -286,7 +286,12 @@ namespace RtStream
 			{
 				mixer->AddInputStream(inputStream);
 			}
-			catch(System::Exception^) { /* TODO: Report this error. */ }
+			catch(System::Exception^)
+			{
+				RtStream::RtAudioErrorEventArgs^ eventArgs = gcnew RtStream::RtAudioErrorEventArgs();
+				eventArgs->errorString->Format("Failed to add inputID: {0} to mixer.", inputID);
+				ErrorOccured(this, eventArgs);
+			}
 		} // end for
 
 		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
