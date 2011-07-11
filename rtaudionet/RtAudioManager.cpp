@@ -320,6 +320,18 @@ namespace RtStream
 			inputStream->Name = String::Format("Input {0}", inputID);
 			inputStream->selectInputDevice(inputID);
 
+			// Check for more than our maximum number of channels
+			if (inputStream->Format->channels > 2)
+			{
+				logger->Warn(String::Format("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
+					inputStream->Format->channels));
+				inputStream->Format->channels = 2;
+			}
+			else
+			{
+				logger->Debug(String::Format("Passed number of channels check: {0} channels detected."));
+			} // end if
+
 			try
 			{
 				logger->Debug(String::Format("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
@@ -362,6 +374,18 @@ namespace RtStream
 			logger->Debug(String::Format("Setting inputStream name to \"{0}\".", inputString));
 			inputStream->Name = inputString;
 			inputStream->selectInputDevice(inputID);
+
+			// Check for more than our maximum number of channels
+			if (inputStream->Format->channels > 2)
+			{
+				logger->Warn(String::Format("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
+					inputStream->Format->channels));
+				inputStream->Format->channels = 2;
+			}
+			else
+			{
+				logger->Debug(String::Format("Passed number of channels check: {0} channels detected."));
+			} // end if
 
 			try
 			{
@@ -406,6 +430,18 @@ namespace RtStream
 			logger->Debug(String::Format("Setting inputStream name to \"Input {0}\".", input["id"]));
 			inputStream->Name = String::Format("Input {0}", input["id"]);
 			inputStream->selectInputDevice(System::Convert::ToInt32(input["id"]));
+
+			// Check for more than our maximum number of channels
+			if (inputStream->Format->channels > 2)
+			{
+				logger->Warn(String::Format("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
+					inputStream->Format->channels));
+				inputStream->Format->channels = 2;
+			}
+			else
+			{
+				logger->Debug(String::Format("Passed number of channels check: {0} channels detected."));
+			} // end if
 
 			try
 			{
