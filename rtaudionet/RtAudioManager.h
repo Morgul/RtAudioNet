@@ -56,6 +56,15 @@ namespace RtStream
 
     }; // end RtAudioManagerApiException
 
+	// RtAudioNetErrorEvent EventArgs
+	public ref class RtAudioErrorEventArgs : EventArgs
+	{
+	public:
+		String^ errorString;
+	}; // end RtAudioErrorEventArgs
+
+	// Custom Event handler for the error event
+	public delegate void RtAudioErrorEventHandler(System::Object^ sender, RtAudioErrorEventArgs^ e);
 
 	public ref class RtAudioManager
 	{
@@ -73,6 +82,9 @@ namespace RtStream
 
 		// Fires when a device is added or removed from the system
 		event EventHandler^ DeviceEnumerationChanged;
+
+		// Fires when there is an error
+		event RtAudioErrorEventHandler^ ErrorOccured;
 
 		// Finds the input device id by name
 		int FindInputDeviceByName(String^ name);
