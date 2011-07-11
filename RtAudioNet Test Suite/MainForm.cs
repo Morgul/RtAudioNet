@@ -51,6 +51,8 @@ namespace RtAudioNet_Test_Suite
         private RtStreamMixer mixer = null;
         private bool streamRunning = false;
 
+        private static EventLogger logger = EventLoggerManager.getLogger("Test Logger");
+
         private Byte[] buffer;
 
         public MainForm()
@@ -64,6 +66,11 @@ namespace RtAudioNet_Test_Suite
             //audio1 = new RtAudio();
 
             mixer = new RtStreamMixer();
+
+            // Setup Test Logging
+            EventLoggerManager.DebugLoggingEvent += new LoggingEventHandler(EventLoggerManager_DebugLoggingEvent);
+
+            logger.Debug("This is a bloody test!");
 
             List<RtAudio.Api> compileApis = RtAudio.getCompiledApi();
 
@@ -100,6 +107,11 @@ namespace RtAudioNet_Test_Suite
                     outputCombo.SelectedIndex = 0;
                 } // end if
             } // end for
+        }
+
+        void EventLoggerManager_DebugLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            Console.WriteLine("[DEBUG] ({0}) {1}", e.logger, e.message);
         }
 
         int loopbackCallback1(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, Object userData)

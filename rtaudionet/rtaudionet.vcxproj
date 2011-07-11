@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CircularBuffer.h" />
+    <ClInclude Include="EventLogger.h" />
     <ClInclude Include="RtAudioManager.h" />
     <ClInclude Include="RtAudioNet.h" />
     <ClInclude Include="RtAudio\include\asio.h" />
@@ -98,6 +99,7 @@
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="CircularBuffer.cpp" />
+    <ClCompile Include="EventLogger.cpp" />
     <ClCompile Include="RtAudioManager.cpp" />
     <ClCompile Include="RtAudioNet.cpp" />
     <ClCompile Include="RtAudio\include\asio.cpp" />

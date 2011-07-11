@@ -26,6 +26,7 @@
 
 #include "RtAudioNet.h"
 #include "RtMixer.h"
+#include "EventLogger.h"
 
 using namespace System::Timers;
 
@@ -150,6 +151,9 @@ namespace RtStream
 
 		// Common initialization
 		void initialize();
+
+		// Logger
+		EventLogger^ logger;
 
 		// Enumerate Devices timer
 		System::Timers::Timer^ enumerateTimer;
