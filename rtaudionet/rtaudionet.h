@@ -27,6 +27,7 @@
 #include "RtAudio\RtAudio.h"
 
 #include "RtErrorNet.h"
+#include "EventLogger.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -248,6 +249,8 @@ namespace RtAudioNet {
 		// Actual RtAudio instance
 		::RtAudio* _rtaudio;
 
+		// Our logger
+		EventLogger^ logger;
 	};
 
 	// Internal Callback

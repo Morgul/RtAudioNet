@@ -62,6 +62,8 @@ RtMixerInput::RtMixerInput(RtInputStream^ stream, float gain, float pan)
 // Default Constructor
 RtStreamMixer::RtStreamMixer()
 {
+	logger = EventLoggerManager::getLogger("RtStreamMixer");
+
 	Format = gcnew RtStreamFormat();
 	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
 	Format->sampleRate = 11025;
@@ -338,6 +340,8 @@ void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 // Default Constructor
 RtDuplexMixer::RtDuplexMixer()
 {
+	logger = EventLoggerManager::getLogger("RtDuplexMixer");
+
 	Format = gcnew RtStreamFormat();
 	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
 	Format->sampleRate = 11025;

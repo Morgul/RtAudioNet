@@ -32,27 +32,27 @@ namespace RtAudioNet
 		event LoggingEventHandler^ CriticalLoggingEvent;
 	
 		// Trace Level Logging
-		void Trace(String^ message);
+		void Trace(String^ message, ... array<Object^>^ params);
 		void TraceEx(String^ message, Exception^ ex);
 	
 		// Debug Level Logging
-		void Debug(String^ message);
+		void Debug(String^ message, ... array<Object^>^ params);
 		void DebugEx(String^ message, Exception^ ex);
 	
 		// Info Level Logging
-		void Info(String^ message);
+		void Info(String^ message, ... array<Object^>^ params);
 		void InfoEx(String^ message, Exception^ ex);
 	
 		// Warn Level Logging
-		void Warn(String^ message);
+		void Warn(String^ message, ... array<Object^>^ params);
 		void WarnEx(String^ message, Exception^ ex);
 	
 		// Error Level Logging
-		void Error(String^ message);
+		void Error(String^ message, ... array<Object^>^ params);
 		void ErrorEx(String^ message, Exception^ ex);
 	
 		// Critical Level Logging
-		void Critical(String^ message);
+		void Critical(String^ message, ... array<Object^>^ params);
 		void CriticalEx(String^ message, Exception^ ex);
 	
 	private:

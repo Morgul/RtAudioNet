@@ -32,10 +32,14 @@ namespace RtStream
 
 	RtAudioStream::RtAudioStream()
 	{
+		logger = EventLoggerManager::getLogger("RtStream");
+
 		// Since we don't use it, there's no need to instantiate it.
 		//rtaudio = gcnew ::RtAudioNet::RtAudio();
+		logger->Trace("Setting internal buffer.");
 		internalBuffer = gcnew CircularBuffer<float>(4096);
 
+		logger->Trace("Setting properties.");
 		_canRead = true;
 		_canWrite = true;
 		_canSeek = false;
@@ -121,6 +125,8 @@ namespace RtStream
 	// Finish initializing the stream
 	void RtInputStream::initialize()
 	{
+		logger = EventLoggerManager::getLogger("RtInputStream");
+
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		
@@ -297,6 +303,8 @@ namespace RtStream
 	// Finish initializing the stream
 	void RtOutputStream::initialize()
 	{
+		logger = EventLoggerManager::getLogger("RtOutputStream");
+
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 
@@ -450,6 +458,8 @@ namespace RtStream
 	// Finish initializing the stream
 	void RtDuplexStream::initialize()
 	{
+		logger = EventLoggerManager::getLogger("RtDuplexStream");
+
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
