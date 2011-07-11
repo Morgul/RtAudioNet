@@ -322,7 +322,8 @@ namespace RtStream
 
 			try
 			{
-				logger->Debug(String::Format("Adding inputStream {0}.", inputStream->Name));
+				logger->Debug(String::Format("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample));
 				mixer->AddInputStream(inputStream);
 			}
 			catch(System::Exception^ ex)
@@ -364,7 +365,8 @@ namespace RtStream
 
 			try
 			{
-				logger->Debug(String::Format("Adding inputStream {0}.", inputStream->Name));
+				logger->Debug(String::Format("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample));
 				mixer->AddInputStream(inputStream);
 			}
 			catch(System::Exception^ ex)
@@ -407,7 +409,8 @@ namespace RtStream
 
 			try
 			{
-				logger->Debug(String::Format("Adding inputStream {0}.", inputStream->Name));
+				logger->Debug(String::Format("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample));
 				mixer->AddInputStream(inputStream, System::Convert::ToSingle(input["gain"]), System::Convert::ToSingle(input["pan"]));
 			}
 			catch(System::Exception^ ex)
