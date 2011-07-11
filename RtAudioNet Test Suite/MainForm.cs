@@ -51,7 +51,7 @@ namespace RtAudioNet_Test_Suite
         private RtStreamMixer mixer = null;
         private bool streamRunning = false;
 
-        private static EventLogger logger = EventLoggerManager.getLogger("Test Logger");
+        private static EventLogger logger = EventLoggerManager.getLogger("RtAudio TestSuit");
 
         private Byte[] buffer;
 
@@ -68,32 +68,43 @@ namespace RtAudioNet_Test_Suite
             mixer = new RtStreamMixer();
 
             // Setup Test Logging
+            EventLoggerManager.TraceLoggingEvent += new LoggingEventHandler(EventLoggerManager_TraceLoggingEvent);
             EventLoggerManager.DebugLoggingEvent += new LoggingEventHandler(EventLoggerManager_DebugLoggingEvent);
-
-            logger.Debug("This is a bloody test!");
+            EventLoggerManager.InfoLoggingEvent += new LoggingEventHandler(EventLoggerManager_InfoLoggingEvent);
+            EventLoggerManager.WarnLoggingEvent += new LoggingEventHandler(EventLoggerManager_WarnLoggingEvent);
+            EventLoggerManager.ErrorLoggingEvent += new LoggingEventHandler(EventLoggerManager_ErrorLoggingEvent);
+            EventLoggerManager.CriticalLoggingEvent += new LoggingEventHandler(EventLoggerManager_CriticalLoggingEvent);
 
             List<RtAudio.Api> compileApis = RtAudio.getCompiledApi();
 
             // List the currently compiled APIs.
-            Console.WriteLine("Compiled Apis:");
+            logger.Debug("Compiled Apis:");
             foreach (RtAudio.Api api in compileApis)
             {
-                Console.WriteLine("  {0}", api.ToString());
+                //Console.WriteLine("  {0}", api.ToString());
+                logger.Debug(String.Format("  {0}", api.ToString()));
             } // end foreach
 
             // Enumerate Devices
             uint deviceCount = audio.getDeviceCount();
-            Console.WriteLine("Device Count: {0}", deviceCount);
+            //Console.WriteLine("Device Count: {0}", deviceCount);
+            logger.Debug(String.Format("Device Count: {0}", deviceCount));
 
-            Console.WriteLine("Found Devices:");
+            //Console.WriteLine("Found Devices:");
+            logger.Debug("Found Devices:");
             for (uint idx = 0; deviceCount > idx; idx++)
             {
                 RtAudio.DeviceInfo info = audio.getDeviceInfo(idx);
 
-                Console.WriteLine("ID {1}: {0}:", info.name, idx);
-                Console.WriteLine("    InputChannels: {0}", info.inputChannels);
-                Console.WriteLine("    OutputChannels: {0}", info.outputChannels);
-                Console.WriteLine("    DuplexChannels: {0}", info.duplexChannels);
+                //Console.WriteLine("ID {1}: {0}:", info.name, idx);
+                //Console.WriteLine("    InputChannels: {0}", info.inputChannels);
+                //Console.WriteLine("    OutputChannels: {0}", info.outputChannels);
+                //Console.WriteLine("    DuplexChannels: {0}", info.duplexChannels);
+
+                logger.Debug(String.Format("ID {1}: {0}:", info.name, idx));
+                logger.Debug(String.Format("    InputChannels: {0}", info.inputChannels));
+                logger.Debug(String.Format("    OutputChannels: {0}", info.outputChannels));
+                logger.Debug(String.Format("    DuplexChannels: {0}", info.duplexChannels));
 
                 if (info.inputChannels > 0)
                 {
@@ -109,10 +120,77 @@ namespace RtAudioNet_Test_Suite
             } // end for
         }
 
+        void EventLoggerManager_TraceLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            if (e.ex == null)
+            {
+                Console.WriteLine("[TRACE] ({0}) {1}", e.logger, e.message);
+            }
+            else
+            {
+                Console.WriteLine("[TRACE] ({0}) {1}, Exception: {2}", e.logger, e.message, e.ex.Message);
+            } // end if
+        } // end EventLoggerManager_TraceLoggingEvent
+
         void EventLoggerManager_DebugLoggingEvent(object sender, LoggingEventArgs e)
         {
-            Console.WriteLine("[DEBUG] ({0}) {1}", e.logger, e.message);
-        }
+            if (e.ex == null)
+            {
+                Console.WriteLine("[DEBUG] ({0}) {1}", e.logger, e.message);
+            }
+            else
+            {
+                Console.WriteLine("[DEBUG] ({0}) {1}, Exception: {2}", e.logger, e.message, e.ex.Message);
+            } // end if
+        } // end EventLoggerManager_DebugLoggingEvent
+
+        void EventLoggerManager_InfoLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            if (e.ex == null)
+            {
+                Console.WriteLine("[INFO] ({0}) {1}", e.logger, e.message);
+            }
+            else
+            {
+                Console.WriteLine("[INFO] ({0}) {1}, Exception: {2}", e.logger, e.message, e.ex.Message);
+            } // end if
+        } // end EventLoggerManager_InfoLoggingEvent
+
+        void EventLoggerManager_WarnLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            if (e.ex == null)
+            {
+                Console.WriteLine("[WARN] ({0}) {1}", e.logger, e.message);
+            }
+            else
+            {
+                Console.WriteLine("[WARN] ({0}) {1}, Exception: {2}", e.logger, e.message, e.ex.Message);
+            } // end if
+        } // end EventLoggerManager_WarnLoggingEvent
+
+        void EventLoggerManager_ErrorLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            if (e.ex == null)
+            {
+                Console.WriteLine("[ERROR] ({0}) {1}", e.logger, e.message);
+            }
+            else
+            {
+                Console.WriteLine("[ERROR] ({0}) {1}, Exception: {2}", e.logger, e.message, e.ex.Message);
+            } // end if
+        } // end EventLoggerManager_ErrorLoggingEvent
+
+        void EventLoggerManager_CriticalLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            if (e.ex == null)
+            {
+                Console.WriteLine("[CRITICAL] ({0}) {1}", e.logger, e.message);
+            }
+            else
+            {
+                Console.WriteLine("[CRITICAL] ({0}) {1}, Exception: {2}", e.logger, e.message, e.ex.Message);
+            } // end if
+        } // end EventLoggerManager_CriticalLoggingEvent
 
         int loopbackCallback1(IntPtr outputBufferPtr, IntPtr inputBufferPtr, uint frames, double streamTime, uint status, Object userData)
         {
