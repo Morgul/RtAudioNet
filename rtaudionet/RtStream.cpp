@@ -165,7 +165,7 @@ namespace RtStream
 		RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(devID);
 		int channels = info->inputChannels;
 
-		if(channels > 0)
+		if(channels > 0 && channels <= 2)
 		{
 			Format->channels = channels;
 		}

@@ -329,7 +329,7 @@ namespace RtStream
 			}
 			else
 			{
-				logger->Debug(String::Format("Passed number of channels check: {0} channels detected."));
+				logger->Debug(String::Format("Passed number of channels check: {0} channels detected.", inputStream->Format->channels));
 			} // end if
 
 			try
@@ -384,7 +384,7 @@ namespace RtStream
 			}
 			else
 			{
-				logger->Debug(String::Format("Passed number of channels check: {0} channels detected."));
+				logger->Debug(String::Format("Passed number of channels check: {0} channels detected.", inputStream->Format->channels));
 			} // end if
 
 			try
@@ -440,7 +440,7 @@ namespace RtStream
 			}
 			else
 			{
-				logger->Debug(String::Format("Passed number of channels check: {0} channels detected."));
+				logger->Debug(String::Format("Passed number of channels check: {0} channels detected.", inputStream->Format->channels));
 			} // end if
 
 			try
