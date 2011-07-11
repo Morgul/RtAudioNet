@@ -115,6 +115,11 @@ void RtStreamMixer::AddInputStream(RtInputStream^ inputStream)
 	inputStream->Format->type = Format->type;
 	inputStream->Format->sampleRate = Format->sampleRate;
 
+	if (inputStream->Format->channels > 2)
+	{
+		inputStream->Format->channels = 2;
+	} // end if
+
 	inputStream->Open();
 
 	// Add the string to our internal list
@@ -139,6 +144,12 @@ void RtStreamMixer::AddInputStream(RtInputStream^ inputStream, float gain, float
 	// Reset the format to our required format and then reopen the stream
 	inputStream->Format->type = Format->type;
 	inputStream->Format->sampleRate = Format->sampleRate;
+
+	if (inputStream->Format->channels > 2)
+	{
+		inputStream->Format->channels = 2;
+	} // end if
+
 	inputStream->Open();
 
 	// Add the string to our internal list
@@ -164,6 +175,12 @@ void RtStreamMixer::AddInputStream(RtMixerInput^ input)
 	// Reset the format to our required format and then reopen the stream
 	input->InputStream->Format->type = Format->type;
 	input->InputStream->Format->sampleRate = Format->sampleRate;
+
+	if (input->InputStream->Format->channels > 2)
+	{
+		input->InputStream->Format->channels = 2;
+	} // end if
+
 	input->InputStream->Open();
 
 	// Add the string to our internal list
@@ -182,6 +199,12 @@ void RtStreamMixer::SetOutputStream(RtOutputStream^ outputStream)
 	// Reset the format to our required format and then reopen the stream
 	outputStream->Format->type = Format->type;
 	outputStream->Format->sampleRate = Format->sampleRate;
+
+	if (outputStream->Format->channels > 2)
+	{
+		outputStream->Format->channels = 2;
+	} // end if
+
 	outputStream->Open();
 
 	// Set out outputStream
