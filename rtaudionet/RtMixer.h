@@ -25,6 +25,7 @@
 #pragma once
 
 #include "RtStream.h"
+#include "EventLogger.h"
 
 using namespace System::Collections::Generic;
 
@@ -107,6 +108,9 @@ namespace RtStream
 
 		// Internal buffer
 		CircularBuffer<float>^ internalBuffer;
+
+		// Our logger
+		EventLogger^ logger;
 
 		// Is the mixer running
 		bool running;

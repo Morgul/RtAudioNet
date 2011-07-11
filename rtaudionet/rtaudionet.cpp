@@ -57,6 +57,8 @@ namespace RtAudioNet
 	// The class constructor.
 	RtAudio::RtAudio()
 	{
+		logger = EventLoggerManager::getLogger("RtAudioNet");
+
 		// This should be the only line in this function. All other code should be in initialize.
 		initialize(Api::UNSPECIFIED);
 	} // end RtAudio

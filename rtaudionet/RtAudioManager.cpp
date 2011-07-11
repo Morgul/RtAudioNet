@@ -95,15 +95,15 @@ namespace RtStream
 		int devID = -1;	
 		for each(KeyValuePair<String^, int>^ kvp in InputDevices)
 		{
-			logger->Trace(String::Format("Searching \"{0}\" for match with \"{1}\".", kvp->Key, name));
+			logger->Trace("Searching \"{0}\" for match with \"{1}\".", kvp->Key, name);
 			if (kvp->Key->Contains(name))	
 			{
-				logger->Debug(String::Format("Found \"{0}\" with id {1}", kvp->Key, kvp->Value));
+				logger->Debug("Found \"{0}\" with id {1}", kvp->Key, kvp->Value);
 				devID = kvp->Value;
 			} // end if
 		} // end for each
 
-		logger->Trace(String::Format("Returning \"{0}\".", devID));
+		logger->Trace("Returning \"{0}\".", devID);
 		return devID;
 	} // end FindInputDeviceByName
 
@@ -115,15 +115,15 @@ namespace RtStream
 		int devID = -1;	
 		for each(KeyValuePair<String^, int>^ kvp in OutputDevices)
 		{
-			logger->Trace(String::Format("Searching \"{0}\" for match with \"{1}\".", kvp->Key, name));
+			logger->Trace("Searching \"{0}\" for match with \"{1}\".", kvp->Key, name);
 			if (kvp->Key->Contains(name))	
 			{
-				logger->Debug(String::Format("Found \"{0}\" with id {1}", kvp->Key, kvp->Value));
+				logger->Debug("Found \"{0}\" with id {1}", kvp->Key, kvp->Value);
 				devID = kvp->Value;
 			} // end if
 		} // end for each
 
-		logger->Trace(String::Format("Returning \"{0}\".", devID));
+		logger->Trace("Returning \"{0}\".", devID);
 		return devID;
 	} // end FindOutputDeviceByName
 
@@ -153,7 +153,7 @@ namespace RtStream
 			mixer = gcnew RtStreamMixer();
 		} // end if
 
-		logger->Trace(String::Format("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer));
+		logger->Trace("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer);
 		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
@@ -176,7 +176,7 @@ namespace RtStream
 			mixer = gcnew RtStreamMixer();
 		} // end if
 
-		logger->Trace(String::Format("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer));
+		logger->Trace("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer);
 		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
@@ -198,7 +198,7 @@ namespace RtStream
 			mixer = gcnew RtStreamMixer();
 		} // end if
 
-		logger->Trace(String::Format("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer));
+		logger->Trace("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer);
 		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
@@ -222,7 +222,7 @@ namespace RtStream
 		} // end if
 		mixer->Format->sampleRate = sampleRate;
 
-		logger->Trace(String::Format("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer));
+		logger->Trace("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer);
 		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
@@ -246,7 +246,7 @@ namespace RtStream
 		} // end if
 		mixer->Format->sampleRate = sampleRate;
 
-		logger->Trace(String::Format("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer));
+		logger->Trace("Calling _createMixer with: inputs:{0}, output:{1}, mixer:{2}", inputs, output, mixer);
 		return _createMixer(inputs, output, mixer);
 	} // end CreateMixer
 
@@ -266,19 +266,19 @@ namespace RtStream
 		// Update Device Dictionaries
 		for (int idx = 0; DeviceCount > idx; idx++)
 		{
-			logger->Trace(String::Format("Iterating over devices. DeviceCount: {0}, idx: {1}.", DeviceCount, idx));
+			logger->Trace("Iterating over devices. DeviceCount: {0}, idx: {1}.", DeviceCount, idx);
 
 			::RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(idx);
 
 			if (info->inputChannels > 0)
 			{
-				logger->Debug(String::Format("Setting inputDevices[{0}] to {1}", info->name, idx));
+				logger->Debug("Setting inputDevices[{0}] to {1}", info->name, idx);
 				inputDevices[info->name] = idx;
 			} // end if
 
 			if (info->outputChannels > 0)
 			{
-				logger->Debug(String::Format("Setting outputDevices[{0}] to {1}", info->name, idx));
+				logger->Debug("Setting outputDevices[{0}] to {1}", info->name, idx);
 				outputDevices[info->name] = idx;
 			} // end if
 		} // end for
@@ -299,7 +299,7 @@ namespace RtStream
 		int devCount = DeviceCount;
 		bool changed = EnumerateDevices();
 
-		logger->Trace(String::Format("Checking devCount: {0}, DeviceCount: {1}, changed: {2}", devCount, DeviceCount, changed));
+		logger->Trace("Checking devCount: {0}, DeviceCount: {1}, changed: {2}", devCount, DeviceCount, changed);
 		if ((devCount != DeviceCount) || changed)
 		{
 			logger->Debug("Firing DeviceEnumerationChanged!");
@@ -313,29 +313,29 @@ namespace RtStream
 		logger->Trace("_createMixer(List<int>^ inputs, int output, RtStreamMixer^ mixer) called.");
 		for each(int inputID in inputs)
 		{
-			logger->Trace(String::Format("Iterating over inputs: {0}; on inputID: {1}.", inputs, inputID));
+			logger->Trace("Iterating over inputs: {0}; on inputID: {1}.", inputs, inputID);
 
 			RtInputStream^ inputStream = gcnew RtInputStream(512);
-			logger->Debug(String::Format("Setting inputStream name to \"Input {0}\".", inputID));
+			logger->Debug("Setting inputStream name to \"Input {0}\".", inputID);
 			inputStream->Name = String::Format("Input {0}", inputID);
 			inputStream->selectInputDevice(inputID);
 
 			// Check for more than our maximum number of channels
 			if (inputStream->Format->channels > 2)
 			{
-				logger->Warn(String::Format("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
-					inputStream->Format->channels));
+				logger->Warn("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
+					inputStream->Format->channels);
 				inputStream->Format->channels = 2;
 			}
 			else
 			{
-				logger->Debug(String::Format("Passed number of channels check: {0} channels detected.", inputStream->Format->channels));
+				logger->Debug("Passed number of channels check: {0} channels detected.", inputStream->Format->channels);
 			} // end if
 
 			try
 			{
-				logger->Debug(String::Format("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
-					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample));
+				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample);
 				mixer->AddInputStream(inputStream);
 			}
 			catch(System::Exception^ ex)
@@ -349,7 +349,7 @@ namespace RtStream
 			} // end try/catch
 		} // end for
 
-		logger->Trace(String::Format("Creating outputStream with device id {0}.", output));
+		logger->Trace("Creating outputStream with device id {0}.", output);
 		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
 		outputStream->selectOutputDevice(output);
 
@@ -367,11 +367,11 @@ namespace RtStream
 
 		for each(String^ inputString in inputs)
 		{
-			logger->Trace(String::Format("Iterating over inputs: {0}; on inputString: {1}.", inputs, inputString));
+			logger->Trace("Iterating over inputs: {0}; on inputString: {1}.", inputs, inputString);
 
 			int inputID = FindInputDeviceByName(inputString);
 			RtInputStream^ inputStream = gcnew RtInputStream(512);
-			logger->Debug(String::Format("Setting inputStream name to \"{0}\".", inputString));
+			logger->Debug("Setting inputStream name to \"{0}\".", inputString);
 			inputStream->Name = inputString;
 			inputStream->selectInputDevice(inputID);
 
@@ -384,13 +384,13 @@ namespace RtStream
 			}
 			else
 			{
-				logger->Debug(String::Format("Passed number of channels check: {0} channels detected.", inputStream->Format->channels));
+				logger->Debug("Passed number of channels check: {0} channels detected.", inputStream->Format->channels);
 			} // end if
 
 			try
 			{
-				logger->Debug(String::Format("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
-					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample));
+				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample);
 				mixer->AddInputStream(inputStream);
 			}
 			catch(System::Exception^ ex)
@@ -404,7 +404,7 @@ namespace RtStream
 			} // end try/catch
 		} // end for
 
-		logger->Trace(String::Format("Creating outputStream with device name {0}.", output));
+		logger->Trace("Creating outputStream with device name {0}.", output);
 		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
 		outputStream->selectOutputDevice(output);
 
@@ -422,31 +422,31 @@ namespace RtStream
 
 		for each(Dictionary<String^, String^>^ input in inputs)
 		{
-			logger->Trace(String::Format("Iterating over inputs: {0}; on input: {1}.", inputs, input));
+			logger->Trace("Iterating over inputs: {0}; on input: {1}.", inputs, input);
 
-			logger->Debug(String::Format("Got input dictionary with id: {0}, pan: {1}, gain: {2}", input["id"], input["pan"], input["gain"]));
+			logger->Debug("Got input dictionary with id: {0}, pan: {1}, gain: {2}", input["id"], input["pan"], input["gain"]);
 
 			RtInputStream^ inputStream = gcnew RtInputStream(512);
-			logger->Debug(String::Format("Setting inputStream name to \"Input {0}\".", input["id"]));
+			logger->Debug("Setting inputStream name to \"Input {0}\".", input["id"]);
 			inputStream->Name = String::Format("Input {0}", input["id"]);
 			inputStream->selectInputDevice(System::Convert::ToInt32(input["id"]));
 
 			// Check for more than our maximum number of channels
 			if (inputStream->Format->channels > 2)
 			{
-				logger->Warn(String::Format("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
-					inputStream->Format->channels));
+				logger->Warn("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
+					inputStream->Format->channels);
 				inputStream->Format->channels = 2;
 			}
 			else
 			{
-				logger->Debug(String::Format("Passed number of channels check: {0} channels detected.", inputStream->Format->channels));
+				logger->Debug("Passed number of channels check: {0} channels detected.", inputStream->Format->channels);
 			} // end if
 
 			try
 			{
-				logger->Debug(String::Format("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
-					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample));
+				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample);
 				mixer->AddInputStream(inputStream, System::Convert::ToSingle(input["gain"]), System::Convert::ToSingle(input["pan"]));
 			}
 			catch(System::Exception^ ex)
@@ -460,7 +460,7 @@ namespace RtStream
 			} // end try/catch
 		} // end for
 
-		logger->Trace(String::Format("Creating outputStream with device id {0}.", output));
+		logger->Trace("Creating outputStream with device id {0}.", output);
 		RtOutputStream^ outputStream = gcnew RtOutputStream(512);
 		outputStream->selectOutputDevice(output);
 

@@ -9,11 +9,11 @@ namespace RtAudioNet
 	} // end EventLogger
 	
 	// Trace Level Logging
-	void EventLogger::Trace(String^ message)
+	void EventLogger::Trace(String^ message, ... array<Object^>^ params)
 	{
 		LoggingEventArgs^ args = gcnew LoggingEventArgs();
 		args->logger = this->name;
-		args->message = message;
+		args->message = String::Format(message, params);
 	
 		TraceLoggingEvent(this, args);
 	} // end Trace
@@ -29,11 +29,11 @@ namespace RtAudioNet
 	} // end TraceEx
 	
 	// Debug Level Logging
-	void EventLogger::Debug(String^ message)
+	void EventLogger::Debug(String^ message, ... array<Object^>^ params)
 	{
 		LoggingEventArgs^ args = gcnew LoggingEventArgs();
 		args->logger = this->name;
-		args->message = message;
+		args->message = String::Format(message, params);
 	
 		DebugLoggingEvent(this, args);
 	} // end Debug
@@ -49,11 +49,11 @@ namespace RtAudioNet
 	} // end DebugEx
 	
 	// Info Level Logging
-	void EventLogger::Info(String^ message)
+	void EventLogger::Info(String^ message, ... array<Object^>^ params)
 	{
 		LoggingEventArgs^ args = gcnew LoggingEventArgs();
 		args->logger = this->name;
-		args->message = message;
+		args->message = String::Format(message, params);
 	
 		InfoLoggingEvent(this, args);
 	} // end Info
@@ -69,11 +69,11 @@ namespace RtAudioNet
 	} // end InfoEx
 	
 	// Warn Level Logging
-	void EventLogger::Warn(String^ message)
+	void EventLogger::Warn(String^ message, ... array<Object^>^ params)
 	{
 		LoggingEventArgs^ args = gcnew LoggingEventArgs();
 		args->logger = this->name;
-		args->message = message;
+		args->message = String::Format(message, params);
 	
 		WarnLoggingEvent(this, args);
 	} // end Warn
@@ -89,11 +89,11 @@ namespace RtAudioNet
 	} // end WarnEx
 	
 	// Error Level Logging
-	void EventLogger::Error(String^ message)
+	void EventLogger::Error(String^ message, ... array<Object^>^ params)
 	{
 		LoggingEventArgs^ args = gcnew LoggingEventArgs();
 		args->logger = this->name;
-		args->message = message;
+		args->message = String::Format(message, params);
 	
 		ErrorLoggingEvent(this, args);
 	} // end Error
@@ -109,11 +109,11 @@ namespace RtAudioNet
 	} // end ErrorEx
 	
 	// Critical Level Logging
-	void EventLogger::Critical(String^ message)
+	void EventLogger::Critical(String^ message, ... array<Object^>^ params)
 	{
 		LoggingEventArgs^ args = gcnew LoggingEventArgs();
 		args->logger = this->name;
-		args->message = message;
+		args->message = String::Format(message, params);
 	
 		CriticalLoggingEvent(this, args);
 	} // end Critical
@@ -127,7 +127,6 @@ namespace RtAudioNet
 	
 		CriticalLoggingEvent(this, args);
 	} // end CriticalEx
-	
 	
 	
 	// EventLogger

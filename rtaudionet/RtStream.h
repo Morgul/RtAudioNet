@@ -26,6 +26,7 @@
 
 #include "RtAudioNet.h"
 #include "CircularBuffer.h"
+#include "EventLogger.h"
 
 using namespace System::Runtime::InteropServices;
 using namespace System::IO;
@@ -157,6 +158,9 @@ namespace RtStream
 
 		// Our internal buffer
 		CircularBuffer<float>^ internalBuffer;
+
+		// Our logger
+		EventLogger^ logger;
 
 		// Property variables
 		bool _canRead;
