@@ -64,97 +64,118 @@ RtStreamMixer::RtStreamMixer()
 {
 	logger = EventLoggerManager::getLogger("RtStreamMixer");
 
+	logger->Trace("RtStreamMixer() called.");
+
+	logger->Trace("Creating new Format instance.");
 	Format = gcnew RtStreamFormat();
 	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
 	Format->sampleRate = 11025;
 	Format->channels = 2;
 	Format->bitsPerSample = 16;
 
+	logger->Trace("Setting FramesToBuffer to 1, and OutputGain to 1.");
 	FramesToBuffer = 1;
 
 	OutputGain = 1;
 
 	// Internal buffer
+	logger->Debug("Creating new internal buffer of size: {0}", 1024);
 	internalBuffer = gcnew CircularBuffer<float>(1024, true);
 
 	running = false;
 
 	// All our internal inputStreams
+	logger->Trace("Initializing internal device dictionary.");
 	inputs = gcnew Dictionary<String^, RtMixerInput^>();
 } // end RtStreamMixer
 
 // Default Destructor
 RtStreamMixer::~RtStreamMixer()
 {
+	logger->Trace("~RtStreamMixer() called.");
+
+	logger->Debug("In destructor. Stopping mixer.");
 	Stop();
 
 	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
+		logger->Trace("Telling inputstream to finish.");
 		kvp->Value->InputStream->Finish();
 	} // end for
 
+	logger->Trace("Telling outputstream to finish.");
 	outputStream->Finish();
-
 } // end ~RtStreamMixer
 
 // Add an input stream to the mixer
 void RtStreamMixer::AddInputStream(RtInputStream^ inputStream)
 {
+	logger->Trace("AddInputStream(RtInputStream^ inputStream called.");
+
 	if (inputStream->Name == "")
 	{
-		// FIXME: Throw an exception here
-		Console::WriteLine("[Error]: Adding InputStreams without names is unsupported! Ignoring stream.");
+		logger->Error("Adding InputStreams without names is unsupported! Ignoring stream.");
 		return;
 	} // end if
 
 	// Close the stream if it's open
 	if (inputStream->IsStreamOpen())
 	{
+		logger->Warn("Attempting to add open InputStream!");
 		inputStream->Close();
 	} // end if
 
 	// Reset the format to our required format and then reopen the stream
+	logger->Trace("Resetting InputStream format to mixer's format");
 	inputStream->Format->type = Format->type;
 	inputStream->Format->sampleRate = Format->sampleRate;
 
 	if (inputStream->Format->channels > 2)
 	{
+		logger->Warn("Attempted to add InputStream with more than 2 channels. Resetting to 2.");
 		inputStream->Format->channels = 2;
 	} // end if
 
+	logger->Trace("Opening InputStream.");
 	inputStream->Open();
 
 	// Add the string to our internal list
+	logger->Trace("Adding InputStream to internal input list.");
 	inputs[inputStream->Name] = gcnew RtMixerInput(inputStream);
 } // end AddInputStream
 
 void RtStreamMixer::AddInputStream(RtInputStream^ inputStream, float gain, float pan)
 {
+	logger->Trace("AddInputStream(RtInputStream^ inputStream, float gain, float pan) called.");
 	if (inputStream->Name == "")
 	{
-		// FIXME: Throw an exception here
-		Console::WriteLine("[Error]: Adding InputStreams without names is unsupported! Ignoring stream.");
+		logger->Error("Adding InputStreams without names is unsupported! Ignoring stream.");
 		return;
 	} // end if
 
 	// Close the stream if it's open
 	if (inputStream->IsStreamOpen())
 	{
+		logger->Warn("Attempting to add open InputStream!");
 		inputStream->Close();
 	} // end if
 
 	// Reset the format to our required format and then reopen the stream
+	logger->Trace("Resetting InputStream format to mixer's format");
 	inputStream->Format->type = Format->type;
 	inputStream->Format->sampleRate = Format->sampleRate;
 
 	if (inputStream->Format->channels > 2)
 	{
+		logger->Warn("Attempted to add InputStream with more than 2 channels. Resetting to 2.");
 		inputStream->Format->channels = 2;
 	} // end if
 
+	logger->Trace("Opening InputStream.");
 	inputStream->Open();
 
 	// Add the string to our internal list
+	logger->Trace("Adding InputStream to internal input list with gain: {0}, pan: {1}.", gain, pan);
 	inputs[inputStream->Name] = gcnew RtMixerInput(inputStream, gain, pan);
 } // end AddInputStream
 
@@ -163,99 +184,128 @@ void RtStreamMixer::AddInputStream(RtMixerInput^ input)
 {
 	if (input->InputStream->Name == "")
 	{
-		// FIXME: Throw an exception here
-		Console::WriteLine("[Error]: Adding InputStreams without names is unsupported! Ignoring stream.");
+		logger->Error("Adding InputStreams without names is unsupported! Ignoring stream.");
 		return;
 	} // end if
 
 	// Close the stream if it's open
 	if (input->InputStream->IsStreamOpen())
 	{
+		logger->Warn("Attempting to add open InputStream!");
 		input->InputStream->Close();
 	} // end if
 
 	// Reset the format to our required format and then reopen the stream
+	logger->Trace("Resetting InputStream format to mixer's format");
 	input->InputStream->Format->type = Format->type;
 	input->InputStream->Format->sampleRate = Format->sampleRate;
 
 	if (input->InputStream->Format->channels > 2)
 	{
+		logger->Warn("Attempted to add InputStream with more than 2 channels. Resetting to 2.");
 		input->InputStream->Format->channels = 2;
 	} // end if
 
+	logger->Trace("Opening InputStream.");
 	input->InputStream->Open();
 
 	// Add the string to our internal list
+	logger->Trace("Adding InputStream to internal input list.");
 	inputs[input->InputStream->Name] = input;
 } // end AddInputStream
 
 // Add an outputstream to the mixer
 void RtStreamMixer::SetOutputStream(RtOutputStream^ outputStream)
 {
+	logger->Trace("SetOutputStream(RtOutputStream^ outputStream) called.");
+
 	// Close the stream if it's open
 	if (outputStream->IsStreamOpen())
 	{
+		logger->Warn("Attempting to add open OutputStream!");
 		outputStream->Close();
 	} // end if
 
 	// Reset the format to our required format and then reopen the stream
+	logger->Trace("Resetting OutputStream format to mixer's format");
 	outputStream->Format->type = Format->type;
 	outputStream->Format->sampleRate = Format->sampleRate;
 
 	if (outputStream->Format->channels > 2)
 	{
+		logger->Warn("Attempted to add OutputStream with more than 2 channels. Resetting to 2.");
 		outputStream->Format->channels = 2;
 	} // end if
 
+	logger->Trace("Opening OutputStream.");
 	outputStream->Open();
 
 	// Set out outputStream
+	logger->Trace("Setting OutputStream.");
 	this->outputStream = outputStream;
 
 	// Set our eventhandler
+	logger->Trace("Setting OutputStream->CallbackFired handler.");
 	this->outputStream->CallbackFired += gcnew EventHandler(this, &RtStreamMixer::callbackHandler);
 } // end SetOutputStream
 
 // Adjust the gain on the selected input
 void RtStreamMixer::AdjustGain(String^ inputName, float gain)
 {
+	logger->Trace("AdjustGain(String^ inputName, float gain) called.");
+
+	logger->Debug("Setting Gain to {0}", gain);
 	inputs[inputName]->Gain = gain;
 } // end AdjustGaim
 
 // Adjust the pan on the selected input
 void RtStreamMixer::AdjustPan(String^ inputName, float pan)
 {
+	logger->Trace("AdjustPan(String^ inputName, float pan) called.");
+
+	logger->Debug("Setting Pan to {0}", pan);
 	inputs[inputName]->Pan = pan;
 } // end AdjustPan
 
 // Start the mixer
 void RtStreamMixer::Start()
 {
+	logger->Trace("Start() called.");
+
 	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
+		logger->Trace("Calling InputStream(\"{0}\")->Start()", kvp->Key);
 		kvp->Value->InputStream->Start();
 	} // end for
 
+	logger->Trace("Calling OutputStream->Start().");
 	outputStream->Start();
 } // end Start
 
 // Stop the mixer
 void RtStreamMixer::Stop()
 {
+	logger->Trace("Stop() called.");
+
 	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
+		logger->Trace("Calling InputStream(\"{0}\")->Stop()", kvp->Key);
 		kvp->Value->InputStream->Stop();
 	} // end for
 
+	logger->Trace("Calling OutputStream->Stop().");
 	outputStream->Stop();
 } // end Stop
 
 bool RtStreamMixer::IsRunning()
 {
+	logger->Trace("IsRunning() called. Returning {0}", running);
 	return running;
 } // end IsRunning
 
 // Callback Event Handler
+// XXX: No logging in the callback for performance reasons. Not actually sure if it will make a difference, but for now, I'm leaving it out.
+// For reference: http://stackoverflow.com/questions/3847727/performance-implications-of-net-events
 void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 {
 	array<float>^ tempBuff = gcnew array<float>(outputStream->Frames * outputStream->Format->channels);
