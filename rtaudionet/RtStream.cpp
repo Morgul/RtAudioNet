@@ -205,13 +205,13 @@ namespace RtStream
 		logger->Trace("~RtInputStream called.");
 		if (rtaudio->isStreamRunning())
 		{
-			logger->Debug("In Destructor; stopping stream.");
+			logger->Debug("In destructor; stopping stream.");
 			rtaudio->stopStream();
 		} // end if
 
 		if (rtaudio->isStreamOpen())
 		{
-			logger->Debug("In Destructor; closing stream.");
+			logger->Debug("In destructor; closing stream.");
 			rtaudio->closeStream();
 		} // end if
 	} // end ~RtDuplexStream
@@ -440,13 +440,13 @@ namespace RtStream
 
 		if (rtaudio->isStreamRunning())
 		{
-			logger->Debug("In Destructor; stopping stream.");
+			logger->Debug("In destructor; stopping stream.");
 			rtaudio->stopStream();
 		} // end if
 
 		if (rtaudio->isStreamOpen())
 		{
-			logger->Debug("In Destructor; closing stream.");
+			logger->Debug("In destructor; closing stream.");
 			rtaudio->closeStream();
 		} // end if
 	} // end ~RtDuplexStream
@@ -624,12 +624,18 @@ namespace RtStream
 	{
 		logger = EventLoggerManager::getLogger("RtDuplexStream");
 
+		logger->Trace("initialize called.");
+
+		logger->Debug("Initializing RtAudioNet instance.");
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
+
+		logger->Trace("Initializing new StreamParameters.");
 		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		outputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 
 		if (Format == nullptr)
 		{
+			logger->Trace("Format null, creating new Format instance.");
 			Format = gcnew RtStreamFormat();
 			Format->sampleRate = 22050;
 			Format->channels = 2;
@@ -642,21 +648,30 @@ namespace RtStream
 		//internalBuffer = gcnew CircularBuffer<unsigned char>((frames * Format->channels * 4 * 2), true);
 
 		// Set stream properties
+		logger->Trace("Setting properties...");
 		_canRead = false;
 		_canWrite = false;
 		_canSeek = false;
+		logger->Trace("Properties set: _canRead: {0}, _canWrite: {1}, _canSeek: {2}.", _canRead, _canWrite, _canSeek);
+
 		Name = "";
+
+		logger->Trace("Finished initialize.");
 	} // end initialize
 	
 	RtDuplexStream::~RtDuplexStream()	
 	{
+		logger->Trace("~RtDuplexStream called.");
+
 		if (rtaudio->isStreamRunning())
 		{
+			logger->Debug("In destructor; stopping stream.");
 			rtaudio->stopStream();
 		} // end if
 
 		if (rtaudio->isStreamOpen())
 		{
+			logger->Debug("In destructor; closing stream.");
 			rtaudio->closeStream();
 		} // end if
 	} // end ~RtDuplexStream
@@ -664,6 +679,9 @@ namespace RtStream
 	// Selects the correct input device
 	void RtDuplexStream::selectInputDevice(int devID)
 	{
+		logger->Trace("selectInputDevice(int devID) called.");
+
+		logger->Trace("Setting devideID to {0}, nChannels to {1}.", devID, Format->channels);
 		inputStreamParams->deviceId = devID;
 		inputStreamParams->nChannels = Format->channels;
 	} // end selectInputDevice
@@ -671,14 +689,19 @@ namespace RtStream
 	// Selects the correct input device
 	void RtDuplexStream::selectInputDevice(String^ devString)
 	{
+		logger->Trace("selectInputDevice(String^ devString) called.");
+
 		unsigned int devID = 0;
 
 		for (unsigned int idx = 0; rtaudio->getDeviceCount() > idx; idx++)
 		{
 			::RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(idx);
 
-			if (info->name->Contains(devString))
+			// Case insensitive search
+			logger->Debug("Checking to see if \"{0}\" is in \"{1}\".", devString, info->name);
+			if (info->name->IndexOf(devString, StringComparison::OrdinalIgnoreCase) >= 0)
 			{
+				logger->Debug("Found \"{0}\". Setting devID to {0}.", devString, idx);
 				devID = idx;
 			} // end if
 		} // end for
@@ -688,6 +711,9 @@ namespace RtStream
 	// Selects the correct output device
 	void RtDuplexStream::selectOutputDevice(int devID)
 	{
+		logger->Trace("selectOutputDevice(int devID) called.");
+
+		logger->Trace("Setting devideID to {0}, nChannels to {1}.", devID, Format->channels);
 		outputStreamParams->deviceId = devID;
 		outputStreamParams->nChannels = Format->channels;
 	} // end selectOutputDevice
@@ -695,14 +721,20 @@ namespace RtStream
 	// Selects the correct output device
 	void RtDuplexStream::selectOutputDevice(String^ devString)
 	{
+		logger->Trace("selectOutputDevice(String^ devString) called.");
+
 		unsigned int devID = 0;
 
 		for (unsigned int idx = 0; rtaudio->getDeviceCount() > idx; idx++)
 		{
+			logger->Trace("Getting device info.");
 			::RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(idx);
 
-			if (info->name->Contains(devString))
+			// Case insensitive search
+			logger->Debug("Checking to see if \"{0}\" is in \"{1}\".", devString, info->name);
+			if (info->name->IndexOf(devString, StringComparison::OrdinalIgnoreCase) >= 0)
 			{
+				logger->Debug("Found \"{0}\". Setting devID to {0}.", devString, idx);
 				devID = idx;
 			} // end if
 		} // end for
@@ -713,12 +745,16 @@ namespace RtStream
 	// Opens the stream
 	void RtDuplexStream::Open()
 	{
+		logger->Trace("Open() called.");
+
 		if (Format->options == nullptr)
 		{
+			logger->Trace("Format->options is null. Calling rtaudio->openStream.");
 			rtaudio->openStream(outputStreamParams, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtDuplexStream::callback));
 		}
 		else
 		{
+			logger->Trace("Format->options is not null. Calling rtaudio->openStream.");
 			rtaudio->openStream(outputStreamParams, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtDuplexStream::callback), nullptr, Format->options);
 		} // end if
 	} // end Open
@@ -726,31 +762,44 @@ namespace RtStream
 	// Starts the stream
 	void RtDuplexStream::Start()
 	{
+		logger->Trace("Start() called.");
+
 		int count = 0;	
 		while (!(rtaudio->isStreamOpen() && count < 100))
 		{
+			logger->Trace("Stream not open. Sleeping for 10ms.");
 			System::Threading::Thread::Sleep(10);
 			count++;
 		} // end while
 
+		logger->Trace("Calling rtaudio->startStream()");
 		rtaudio->startStream();
 	} // end Start
 
 	// Stops the stream
 	void RtDuplexStream::Stop()
 	{
+		logger->Trace("Stop() called.");
+
+		logger->Trace("Calling rtaudio->stopStream().");
 		rtaudio->stopStream();
 	} // end Stop
 	
 	// Stops the stream
 	void RtDuplexStream::Finish()
 	{
+		logger->Trace("Finish() called.");
+
+		logger->Trace("Calling rtaudio->closeStream().");
 		rtaudio->closeStream();
 	} // end Stop
 
 	// Aborts the stream
 	void RtDuplexStream::Abort()
 	{
+		logger->Trace("Abort() called.");
+
+		logger->Trace("Calling rtaudio->abortStream().");
 		rtaudio->abortStream();
 	} // end Abort
 
@@ -771,9 +820,12 @@ namespace RtStream
 	// Is the stream a live stream, or a buffered stream?
 	bool RtDuplexStream::IsLive()
 	{
+		logger->Trace("IsLive() called. Returning true.");
 		return true;
 	} // end write
 
+	// XXX: No logging in the callback for performance reasons. Not actually sure if it will make a difference, but for now, I'm leaving it out.
+	// For reference: http://stackoverflow.com/questions/3847727/performance-implications-of-net-events
 	int RtDuplexStream::callback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, unsigned int frames, double streamTime, ::RtAudioNet::RtAudioStreamStatus status, Object^ userData)
 	{
 		// Create our temporary buffer
@@ -802,11 +854,12 @@ namespace RtStream
 	//////////////////////////////////////////////////////////////////////////
 	/// RtStreamConverter Class
 
+	// TODO: Finish this...
 	RtStreamConverter::RtStreamConverter(RtAudioStream^ stream)
 	{
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
 		internalBuffer = gcnew CircularBuffer<float>(4096);
 		_stream = stream;
-	} // end RtWaveStream
+	} // end RtStreamConverter
 
 } // end namespace
