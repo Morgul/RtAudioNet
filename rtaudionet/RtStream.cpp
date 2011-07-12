@@ -579,7 +579,7 @@ namespace RtStream
 		logger->Trace("Aquiring lock on internal buffer.");
 		msclr::lock lk(internalBuffer);
 
-		logger-Trace("Writing {0} bytes.", count);
+		logger->Trace("Writing {0} bytes.", count);
 		internalBuffer->Put(buffer, offset, count);
 	} // end Write
 
