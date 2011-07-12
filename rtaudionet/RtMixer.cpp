@@ -75,7 +75,6 @@ RtStreamMixer::RtStreamMixer()
 
 	logger->Trace("Setting FramesToBuffer to 1, and OutputGain to 1.");
 	FramesToBuffer = 1;
-
 	OutputGain = 1;
 
 	// Internal buffer
@@ -391,71 +390,109 @@ void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 RtDuplexMixer::RtDuplexMixer()
 {
 	logger = EventLoggerManager::getLogger("RtDuplexMixer");
+	logger->Trace("RtDuplexMixer() called.");
 
+	logger->Trace("Creating new Format instance.");
 	Format = gcnew RtStreamFormat();
 	Format->type = ::RtAudioNet::RtAudioFormat::RTAUDIO_FLOAT32;
 	Format->sampleRate = 11025;
 	Format->channels = 2;
 	Format->bitsPerSample = 32;
 
+	logger->Trace("Setting FramesToBuffer to 1, and OutputGain to 1.");
 	FramesToBuffer = 1;
-
 	OutputGain = 1;
 
 	running = false;
 
+	logger->Trace("Creating internal DuplexStream.");
 	duplexStream = gcnew RtDuplexStream(512);
 } // end RtDuplexMixer
 
 // Default Destructor
 RtDuplexMixer::~RtDuplexMixer()
 {
+	logger->Trace("~RtDuplexMixer() called.");
+
+	logger->Debug("In destructor. Stopping mixer.");
 	Stop();
 
+	logger->Trace("Telling DuplexStream to finish.");
 	duplexStream->Finish();
-
 } // end ~RtDuplexMixer
 
 // Add an input stream to the mixer
 void RtDuplexMixer::AddInputStream(RtInputStream^ inputStream)
 {
+	logger->Trace("AddInputStream(RtInputStream^ inputStream) called.");
+
+	logger->Debug("Can't add an InputStream. Instead, setting DuplexStream's input DeviceID to {0}.", inputStream->DeviceID);
 	duplexStream->selectInputDevice(inputStream->DeviceID);
+
+	logger->Trace("Setting DuplexStream Format.");
 	duplexStream->Format = Format;
 } // end AddInputStream
 
 // Add an input stream to the mixer
 void RtDuplexMixer::AddInputStream(RtInputStream^ inputStream, float gain, float pan)
 {
+	logger->Trace("AddInputStream(RtInputStream^ inputStream, float gain, float pan) called.");
+
+	logger->Debug("Can't add an InputStream. Instead, setting DuplexStream's input DeviceID to {0}.", inputStream->DeviceID);
 	duplexStream->selectInputDevice(inputStream->DeviceID);
+
+	logger->Trace("Setting DuplexStream Format.");
 	duplexStream->Format = Format;
 } // end AddInputStream
 
 // Add an input stream to the mixer
 void RtDuplexMixer::AddInputStream(RtMixerInput^ input)
 {
+	logger->Trace("AddInputStream(RtMixerInput^ input) called.");
+
+	logger->Debug("Can't add an InputStream. Instead, setting DuplexStream's input DeviceID to {0}.", input->InputStream->DeviceID);
 	duplexStream->selectInputDevice(input->InputStream->DeviceID);
+
+	logger->Trace("Setting DuplexStream Format.");
 	duplexStream->Format = Format;
 } // AddInputStream
 
 // Add an outputstream to the mixer
 void RtDuplexMixer::SetOutputStream(RtOutputStream^ outputStream)
 {
+	logger->Trace("SetOutputStream(RtOutputStream^ outputStream) called.");
+
+	logger->Debug("Can't add an OutputStream. Instead, setting DuplexStream's output DeviceID to {0}.", outputStream->DeviceID);
 	duplexStream->selectOutputDevice(outputStream->DeviceID);
+
+	logger->Trace("Setting DuplexStream Format.");
 	duplexStream->Format = Format;
 } // SetOutputStream
 
 // Start the mixer
 void RtDuplexMixer::Start()
 {
+	logger->Trace("Start() called.");
+
+	logger->Trace("Calling DuplexStream->Open().");
 	duplexStream->Open();
+
+	logger->Trace("Calling DuplexStream->Start().");
 	duplexStream->Start();
 } // end Start
 
 // Stop the mixer
 void RtDuplexMixer::Stop()
 {
+	logger->Trace("Stop() called.");
+
+	logger->Trace("Calling DuplexStream->Stop().");
 	duplexStream->Stop();
+
+	logger->Trace("Sleeping 50ms.");
 	System::Threading::Thread::Sleep(50);
+
+	logger->Trace("Calling DuplexStream->Finish().");
 	duplexStream->Finish();
 } // end Stop
 
