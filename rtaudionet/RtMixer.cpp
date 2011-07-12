@@ -109,7 +109,7 @@ RtStreamMixer::~RtStreamMixer()
 // Add an input stream to the mixer
 void RtStreamMixer::AddInputStream(RtInputStream^ inputStream)
 {
-	logger->Trace("AddInputStream(RtInputStream^ inputStream called.");
+	logger->Trace("AddInputStream(RtInputStream^ inputStream) called.");
 
 	if (inputStream->Name == "")
 	{
@@ -120,7 +120,7 @@ void RtStreamMixer::AddInputStream(RtInputStream^ inputStream)
 	// Close the stream if it's open
 	if (inputStream->IsStreamOpen())
 	{
-		logger->Warn("Attempting to add open InputStream!");
+		logger->Warn("Attempting to add open InputStream! Closing.");
 		inputStream->Close();
 	} // end if
 
@@ -155,7 +155,7 @@ void RtStreamMixer::AddInputStream(RtInputStream^ inputStream, float gain, float
 	// Close the stream if it's open
 	if (inputStream->IsStreamOpen())
 	{
-		logger->Warn("Attempting to add open InputStream!");
+		logger->Warn("Attempting to add open InputStream! Closing.");
 		inputStream->Close();
 	} // end if
 
@@ -190,7 +190,7 @@ void RtStreamMixer::AddInputStream(RtMixerInput^ input)
 	// Close the stream if it's open
 	if (input->InputStream->IsStreamOpen())
 	{
-		logger->Warn("Attempting to add open InputStream!");
+		logger->Warn("Attempting to add open InputStream! Closing.");
 		input->InputStream->Close();
 	} // end if
 
@@ -221,7 +221,7 @@ void RtStreamMixer::SetOutputStream(RtOutputStream^ outputStream)
 	// Close the stream if it's open
 	if (outputStream->IsStreamOpen())
 	{
-		logger->Warn("Attempting to add open OutputStream!");
+		logger->Warn("Attempting to add open OutputStream! Closing.");
 		outputStream->Close();
 	} // end if
 
