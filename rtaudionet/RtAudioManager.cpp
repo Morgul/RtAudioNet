@@ -51,8 +51,11 @@ namespace RtStream
 	// Default Constructor
 	RtAudioManager::~RtAudioManager()	
 	{
+		logger->Trace("~RtAudioManager called.");
+
 		if (enumerateTimer->Enabled)
 		{
+			logger->Trace("Stopping enumerateTimer.");
 			enumerateTimer->Stop();
 		} // end if
 	} // end ~RtAudioManager
@@ -61,10 +64,10 @@ namespace RtStream
 	{
 		// Initialize the logger
 		logger = EventLoggerManager::getLogger("RtAudioManager");
-		logger->Debug("Starting initialize.");
+		logger->Trace("Starting initialize.");
 
 		// Initialize RtAudio
-		logger->Trace("Initializing internal RtAudioNet.");
+		logger->Debug("Initializing internal RtAudioNet.");
 		rtaudio = gcnew ::RtAudioNet::RtAudio(_api);
 
 		// Initialize device dictionaries
