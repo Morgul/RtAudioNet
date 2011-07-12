@@ -43,78 +43,118 @@ namespace RtStream
 		_canRead = true;
 		_canWrite = true;
 		_canSeek = false;
+		logger->Trace("Properties set: _canRead: {0}, _canWrite: {1}, _canSeek: {2}.", _canRead, _canWrite, _canSeek);
 
 		Name = "";
+
+		logger->Trace("Finished constructor.");
 	} // end RtWaveStream
 	
 	// Read method required by the stream base class.
 	int RtAudioStream::Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count)
 	{
+		logger->Trace("Read([InAttribute] [OutAttribute] array<unsigned char>^ buffer, int offset, int count) called.");
+
+		logger->Trace("Creating tempBuff of size {0}", (buffer->Length / 4));
 		array<float>^ tempBuff = gcnew array<float>(buffer->Length / 4);
+
+		logger->Trace("Populating tempBuff from internal buffer.");
 		int bytesRead = 4 * internalBuffer->Get(tempBuff, offset, count);
 
 		// Copy to byte array
+		logger->Trace("Performing BlockCopy.");
 		Buffer::BlockCopy(tempBuff, 0, buffer, 0, buffer->Length);
 
+		logger->Trace("Returning bytesRead({0})", bytesRead);
 		return bytesRead;
 	} // end Read
 
 	// Read method required by the stream base class.
 	int RtAudioStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
 	{
+		logger->Trace("Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count) called.");
 		return internalBuffer->Get(buffer, offset, count); 
 	} // end Read
 
 	// Read method required by the stream base class.
 	int RtAudioStream::Read(float buffer[], int offset, int count)
 	{
+		logger->Trace("Read(float buffer[], int offset, int count) called.");
+
+		logger->Trace("Creating tempBuff of size {0}", count);
 		array<float>^ tempBuff = gcnew array<float>(count);
+
+		logger->Trace("Populating tempBuff from internal buffer.");
 		int read = internalBuffer->Get(tempBuff, 0, count); 
+
+		// Copy to float array
+		logger->Trace("Performing Marshal::Copy.");
 		Marshal::Copy(tempBuff, 0, IntPtr(buffer + offset), read);
 
 		if (read != count)
 		{
+			logger->Debug("Stream \"{0}\": Buffer Underrun detected!", Name);
 			BufferUnderrun(this, gcnew EventArgs());
 		} // end if
 
+		logger->Trace("Returning read({0})", read);
 		return read;
 	} // end Read
 
 	// Read class that's more convienent.
 	int RtAudioStream::Read([InAttribute] [OutAttribute] array<float>^ buffer)
 	{
+		logger->Trace("Read([InAttribute] [OutAttribute] array<float>^ buffer) called.");
 		return Read(buffer, 0, buffer->Length);
 	} // end Read
 	
 	// Write method required by the stream base class.
 	void RtAudioStream::Write(array<unsigned char>^ buffer, int offset, int count)
 	{
+		logger->Trace("Write(array<unsigned char>^ buffer, int offset, int count) called.");
+
+
+		logger->Trace("Creating tempBuff of size {0}", (buffer->Length / 4));
 		array<float>^ tempBuff = gcnew array<float>(buffer->Length / 4);
+
+		logger->Trace("Populating tempBuff from internal buffer.");
 		int bytesRead = 4 * internalBuffer->Get(tempBuff, offset, count);
 
 		// Copy to byte array
+		logger->Trace("Performing BlockCopy.");
 		Buffer::BlockCopy(buffer, 0, tempBuff, 0, buffer->Length);
 
+		logger->Trace("Writing {0} bytes.", bytesRead);
 		internalBuffer->Put(tempBuff, offset, count);
 	} //end Write
 
 	// Write method required by the stream base class.
 	void RtAudioStream::Write(array<float>^ buffer, int offset, int count)
 	{
+		logger->Trace("Write(array<float>^ buffer, int offset, int count) called.");
 		internalBuffer->Put(buffer, offset, count);
 	} //end Write
 
 	// Write method required by the stream base class.
 	void RtAudioStream::Write(float buffer[], int offset, int count)
 	{
+		logger->Trace("Write(float buffer[], int offset, int count) called.");
+
+		logger->Trace("Creating tempBuff of size {0}", count);
 		array<float>^ tempBuff = gcnew array<float>(count);
+
+		// Copy to float array
+		logger->Trace("Performing Marshal::Copy.");
 		Marshal::Copy(IntPtr(buffer + offset), tempBuff, 0, count);
+
+		logger->Trace("Writing {0} bytes.", count);
 		internalBuffer->Put(tempBuff, 0, count);
 	} //end Write
 
 	// Write class that's more convienent.
 	void RtAudioStream::Write(array<float>^ buffer)
 	{
+		logger->Trace("Write(array<float>^ buffer) called.");
 		Write(buffer, 0, buffer->Length);
 	} // end Write
 
@@ -127,37 +167,51 @@ namespace RtStream
 	{
 		logger = EventLoggerManager::getLogger("RtInputStream");
 
+		logger->Trace("initialize called.");
+
+		logger->Debug("Initializing RtAudioNet instance.");
 		rtaudio = gcnew ::RtAudioNet::RtAudio();
+
+		logger->Trace("Initializing new StreamParameters.");
 		inputStreamParams = gcnew ::RtAudioNet::RtAudio::StreamParameters();
 		
 		if (Format == nullptr)
 		{
+			logger->Trace("Format null, creating new Format instance.");
 			Format = gcnew RtStreamFormat();
 			Format->sampleRate = 22050;
 			Format->channels = 2;
 			Format->bitsPerSample = 16;
-
 		} // end if
 
 		// (Frames per sample * channels) * numSamplesToBuffer
+		logger->Debug("Creating new internal buffer of size: {0}", (Frames * Format->channels * 2));
 		internalBuffer = gcnew CircularBuffer<float>((Frames * Format->channels * 2), true);
 
 		// Set stream properties
+		logger->Trace("Setting properties.");
 		_canRead = true;
 		_canWrite = false;
 		_canSeek = false;
+		logger->Trace("Properties set: _canRead: {0}, _canWrite: {1}, _canSeek: {2}.", _canRead, _canWrite, _canSeek);
+
 		Name = "";
+
+		logger->Trace("Finished initialize.");
 	} // end initialize
 	
 	RtInputStream::~RtInputStream()	
 	{
+		logger->Trace("~RtInputStream called.");
 		if (rtaudio->isStreamRunning())
 		{
+			logger->Debug("In Destructor; stopping stream.");
 			rtaudio->stopStream();
 		} // end if
 
 		if (rtaudio->isStreamOpen())
 		{
+			logger->Debug("In Destructor; closing stream.");
 			rtaudio->closeStream();
 		} // end if
 	} // end ~RtDuplexStream
@@ -166,20 +220,27 @@ namespace RtStream
 	// Selects the correct input device
 	void RtInputStream::selectInputDevice(int devID)
 	{
+		logger->Trace("selectInputDevice(int devID) called.");
+
+		logger->Debug("Setting DeviceID to {0}", devID);
 		DeviceID = devID;
 
+		logger->Trace("Getting device info, checking channels.");
 		RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(devID);
 		int channels = info->inputChannels;
 
 		if(channels > 0 && channels <= 2)
 		{
+			logger->Debug("Detected {0} channel(s). Setting Format.");
 			Format->channels = channels;
 		}
 		else
 		{
+			logger->Debug("Detected {0} channel(s). Setting Format to 2.");
 			Format->channels = 2;
 		} // end if
 
+		logger->Trace("Setting inputStreamParams: deviceId: {0}, nChannels: {1}", devID, Format->channels);
 		inputStreamParams->deviceId = devID;
 		inputStreamParams->nChannels = Format->channels;
 	} // end selectInputDevice
@@ -187,13 +248,16 @@ namespace RtStream
 	// Selects the correct input device
 	void RtInputStream::selectInputDevice(String^ devString)
 	{
+		logger->Trace("selectInputDevice(String^ devString) called.");
+
 		unsigned int devID = 0;
 
 		for (unsigned int idx = 0; rtaudio->getDeviceCount() > idx; idx++)
 		{
 			::RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(idx);
 
-			if (info->name->Contains(devString))
+			// Case insensitive search
+			if (info->name->IndexOf(devString, StringComparison::OrdinalIgnoreCase) >= 0)
 			{
 				devID = idx;
 			} // end if

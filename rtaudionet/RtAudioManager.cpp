@@ -95,8 +95,9 @@ namespace RtStream
 		int devID = -1;	
 		for each(KeyValuePair<String^, int>^ kvp in InputDevices)
 		{
+			// Case insensitive search
 			logger->Trace("Searching \"{0}\" for match with \"{1}\".", kvp->Key, name);
-			if (kvp->Key->Contains(name))	
+			if (kvp->Key->IndexOf(name, StringComparison::OrdinalIgnoreCase) >= 0)	
 			{
 				logger->Debug("Found \"{0}\" with id {1}", kvp->Key, kvp->Value);
 				devID = kvp->Value;
