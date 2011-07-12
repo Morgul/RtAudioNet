@@ -254,11 +254,14 @@ namespace RtStream
 
 		for (unsigned int idx = 0; rtaudio->getDeviceCount() > idx; idx++)
 		{
+			logger->Trace("Getting device info.");
 			::RtAudioNet::RtAudio::DeviceInfo^ info = rtaudio->getDeviceInfo(idx);
 
 			// Case insensitive search
+			logger->Debug("Checking to see if \"{0}\" is in \"{1}\".", devString, info->name);
 			if (info->name->IndexOf(devString, StringComparison::OrdinalIgnoreCase) >= 0)
 			{
+				logger->Debug("Found \"{0}\". Setting devID to {0}.", devString, idx);
 				devID = idx;
 			} // end if
 		} // end for
@@ -269,12 +272,16 @@ namespace RtStream
 	// Opens the stream
 	void RtInputStream::Open()
 	{
+		logger->Trace("Open() called.");
+
 		if (Format->options == nullptr)
 		{
+			logger->Trace("Format->options is null. Calling rtaudio->openStream.");
 			rtaudio->openStream(nullptr, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtInputStream::callback));
 		}
 		else
 		{
+			logger->Trace("Format->options is not null. Calling rtaudio->openStream.");
 			rtaudio->openStream(nullptr, inputStreamParams, Format->type, Format->sampleRate, Frames, gcnew ::RtAudioNet::RtAudioNetCallback(this, &RtInputStream::callback), nullptr, Format->options);
 		} // end if
 	} // end Open
@@ -282,61 +289,87 @@ namespace RtStream
 	// Starts the stream
 	void RtInputStream::Start()
 	{
+		logger->Trace("Start() called.");
+
 		int count = 0;	
 		while (!(rtaudio->isStreamOpen() && count < 100))
 		{
+			logger->Trace("Stream not open. Sleeping for 10ms.");
 			System::Threading::Thread::Sleep(10);
 			count++;
 		} // end while
 
+		logger->Trace("Calling rtaudio->startStream()");
 		rtaudio->startStream();
 	} // end Start
 
 	// Stops the stream
 	void RtInputStream::Stop()
 	{
+		logger->Trace("Stop() called.");
+
+		logger->Trace("Calling rtaudio->stopStream().");
 		rtaudio->stopStream();
 	} // end Stop
 	
 	// Stops the stream
 	void RtInputStream::Finish()
 	{
+		logger->Trace("Finish() called.");
+
+		logger->Trace("Calling rtaudio->closeStream().");
 		rtaudio->closeStream();
 	} // end Stop
 
 	// Aborts the stream
 	void RtInputStream::Abort()
 	{
+		logger->Trace("Abort() called.");
+
+		logger->Trace("Calling rtaudio->abortStream().");
 		rtaudio->abortStream();
 	} // end Abort
 	
 	// Read class required by the stream base class.
 	int RtInputStream::Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count)
 	{
+		logger->Trace("Read([InAttribute] [OutAttribute] array<float>^ buffer, int offset, int count) called.");
+
 		int dataRead = 0;
+
+		logger->Trace("Aquiring lock on internal buffer.");
 		msclr::lock lk(internalBuffer);
+
+
+		logger->Trace("Populating buffer from internal buffer.");
 		dataRead = internalBuffer->Get(buffer, offset, count); 
 
 		if (dataRead != count)
 		{
+			logger->Debug("Stream \"{0}\": Buffer Underrun detected!", Name);
 			BufferUnderrun(this, gcnew EventArgs());
 		} // end if
 
+		logger->Trace("Returning dataRead({0})", dataRead);
 		return dataRead;
 	} // end Read
 	
 	// Write class required by the stream base class.
 	void RtInputStream::Write(array<float>^ buffer, int offset, int count)
 	{
+		logger->Warn("Called Write on an RtInputStream!");
 		throw gcnew System::NotImplementedException();
 	} // end Write
 
 	// Is the stream a live stream, or a buffered stream?
 	bool RtInputStream::IsLive()
 	{
+		logger-Trace("IsLive() called. Returning true.");
 		return true;
 	} // end write
 
+	// XXX: No logging in the callback for performance reasons. Not actually sure if it will make a difference, but for now, I'm leaving it out.
+	// For reference: http://stackoverflow.com/questions/3847727/performance-implications-of-net-events
 	int RtInputStream::callback(IntPtr outputBufferPtr, IntPtr inputBufferPtr, unsigned int frames, double streamTime, ::RtAudioNet::RtAudioStreamStatus status, Object^ userData)
 	{
 		// Create our temporary buffer
