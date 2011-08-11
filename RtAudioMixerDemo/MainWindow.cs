@@ -6,10 +6,12 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 using RtAudioNet;
 using RtStream;
 using System.Diagnostics;
+
 
 namespace RtAudioMixerDemo
 {
@@ -19,11 +21,26 @@ namespace RtAudioMixerDemo
         private RtStreamMixer mixer = null;
         private RtAudioManager manager = null;
 
+        private Dispatcher dispatcher = null;
+
+        private delegate void enumerateDevicesDelegate();
+
         public MainWindow()
         {
             InitializeComponent();
 
+            dispatcher = Dispatcher.CurrentDispatcher;
+
             manager = RtAudioManager.GetInstance();
+            manager.DeviceEnumerationChanged += new EventHandler(manager_DeviceEnumerationChanged);
+
+            // Connect Logging Events
+            EventLoggerManager.TraceLoggingEvent += new LoggingEventHandler(EventLoggerManager_TraceLoggingEvent);
+            EventLoggerManager.DebugLoggingEvent += new LoggingEventHandler(EventLoggerManager_DebugLoggingEvent);
+            EventLoggerManager.InfoLoggingEvent += new LoggingEventHandler(EventLoggerManager_InfoLoggingEvent);
+            EventLoggerManager.WarnLoggingEvent += new LoggingEventHandler(EventLoggerManager_WarnLoggingEvent);
+            EventLoggerManager.ErrorLoggingEvent += new LoggingEventHandler(EventLoggerManager_ErrorLoggingEvent);
+            EventLoggerManager.CriticalLoggingEvent += new LoggingEventHandler(EventLoggerManager_CriticalLoggingEvent);
 
             // Process Priority
             process = Process.GetCurrentProcess();
@@ -43,10 +60,24 @@ namespace RtAudioMixerDemo
             apiBox.SelectedIndex = apiBox.FindString("WINDOWS_ASIO");
 
             enumerateDevices();
+
+            // Check for changes in the list of active devices every 500ms.
+            manager.enableDeviceWatcher(500);
+        }
+
+        void manager_DeviceEnumerationChanged(object sender, EventArgs e)
+        {
+            Console.WriteLine("Device enumeration changed! Updating list.");
+
+            dispatcher.BeginInvoke(DispatcherPriority.Normal,
+                    new enumerateDevicesDelegate(enumerateDevices));
         } // end MainWindow
 
         private void enumerateDevices()
         {
+            inputsBox.Items.Clear();
+            outputBox.Items.Clear();
+
             // Enumerate Devices
             foreach (KeyValuePair<String, int> kvp in manager.InputDevices)
             {
@@ -59,7 +90,7 @@ namespace RtAudioMixerDemo
             } // end foreach
 
             outputBox.SelectedIndex = 0;
-        } // end enumerateDevices 
+        } // end enumerateDevices
 
         private void startButton_Click(object sender, EventArgs e)
         {
@@ -102,5 +133,47 @@ namespace RtAudioMixerDemo
             // IDDQD (aka: "God Mode")
             process.PriorityClass = (ProcessPriorityClass)priorityBox.SelectedValue;
         } // end startButton_Click
+
+        void LogEvent(string level, LoggingEventArgs e)
+        {
+            if (e.ex == null)
+            {
+                Console.WriteLine("[{0}] ({1}) {2}", level, e.logger, e.message);
+            }
+            else
+            {
+                Console.WriteLine("[{0}] ({1}) {2}, Exception: {3}", level, e.logger, e.message, e.ex.Message);
+            } // end if
+        } // end LogEvent
+
+        void EventLoggerManager_TraceLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            LogEvent("TRACE", e);
+        } // end EventLoggerManager_TraceLoggingEvent
+
+        void EventLoggerManager_DebugLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            LogEvent("DEBUG", e);
+        } // end EventLoggerManager_DebugLoggingEvent
+
+        void EventLoggerManager_InfoLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            LogEvent("INFO", e);
+        } // end EventLoggerManager_InfoLoggingEvent
+
+        void EventLoggerManager_WarnLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            LogEvent("WARN", e);
+        } // end EventLoggerManager_WarnLoggingEvent
+
+        void EventLoggerManager_ErrorLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            LogEvent("ERROR", e);
+        } // end EventLoggerManager_ErrorLoggingEvent
+
+        void EventLoggerManager_CriticalLoggingEvent(object sender, LoggingEventArgs e)
+        {
+            LogEvent("CRITICAL", e);
+        } // end EventLoggerManager_CriticalLoggingEvent
     } // end MainWindow
 } // end namespace
