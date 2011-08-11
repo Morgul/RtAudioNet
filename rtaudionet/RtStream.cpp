@@ -230,12 +230,12 @@ namespace RtStream
 
 		if(channels > 0 && channels <= 2)
 		{
-			logger->Debug("Detected {0} channel(s). Setting Format.");
+			logger->Debug("Detected {0} channel(s). Setting Format.", channels);
 			Format->channels = channels;
 		}
 		else
 		{
-			logger->Debug("Detected {0} channel(s). Setting Format to 2.");
+			logger->Debug("Detected {0} channel(s). Setting Format to 2.", channels);
 			Format->channels = 2;
 		} // end if
 
@@ -465,12 +465,12 @@ namespace RtStream
 
 		if(channels > 0 && channels <= 2)
 		{
-			logger->Debug("Detected {0} channel(s). Setting Format.");
+			logger->Debug("Detected {0} channel(s). Setting Format.", channels);
 			Format->channels = channels;
 		}
 		else
 		{
-			logger->Debug("Detected {0} channel(s). Setting Format to 2.");
+			logger->Debug("Detected {0} channel(s). Setting Format to 2.", channels);
 			Format->channels = 2;
 		} // end if
 
