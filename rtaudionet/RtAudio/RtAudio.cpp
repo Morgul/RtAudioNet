@@ -3638,9 +3638,14 @@ unsigned int RtApiDs :: getDeviceCount( void )
   }
 
   // Clean out any devices that may have disappeared.
-  std::vector< DsDevice > :: iterator it;
-  for ( it=dsDevices.begin(); it < dsDevices.end(); it++ )
-    if ( it->found == false ) dsDevices.erase( it );
+  for ( unsigned int i=0; i<dsDevices.size(); i++ )
+  {
+    if ( dsDevices[i].found == false )
+    {
+      dsDevices.erase( dsDevices.begin() + i );
+      i--;
+    }
+  }
 
   return dsDevices.size();
 }
