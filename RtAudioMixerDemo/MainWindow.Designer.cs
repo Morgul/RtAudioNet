@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.apiBox = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.sampleBox = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.priorityBox = new System.Windows.Forms.ComboBox();
@@ -41,8 +43,6 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.stopButton = new System.Windows.Forms.Button();
             this.startButton = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
-            this.apiBox = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -66,8 +66,28 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Settings";
             // 
+            // apiBox
+            // 
+            this.apiBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.apiBox.FormattingEnabled = true;
+            this.apiBox.Location = new System.Drawing.Point(430, 19);
+            this.apiBox.Name = "apiBox";
+            this.apiBox.Size = new System.Drawing.Size(113, 21);
+            this.apiBox.TabIndex = 5;
+            this.apiBox.SelectedIndexChanged += new System.EventHandler(this.apiBox_SelectedIndexChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(398, 23);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(25, 13);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Api:";
+            // 
             // sampleBox
             // 
+            this.sampleBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.sampleBox.FormattingEnabled = true;
             this.sampleBox.Location = new System.Drawing.Point(282, 20);
             this.sampleBox.Name = "sampleBox";
@@ -88,6 +108,7 @@
             this.priorityBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.priorityBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.priorityBox.FormattingEnabled = true;
             this.priorityBox.Location = new System.Drawing.Point(95, 20);
             this.priorityBox.Name = "priorityBox";
@@ -118,7 +139,7 @@
             this.groupBox2.Controls.Add(this.inputsBox);
             this.groupBox2.Location = new System.Drawing.Point(13, 76);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(549, 190);
+            this.groupBox2.Size = new System.Drawing.Size(549, 178);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Mixer";
@@ -128,8 +149,9 @@
             this.outputBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.outputBox.FormattingEnabled = true;
-            this.outputBox.Location = new System.Drawing.Point(61, 156);
+            this.outputBox.Location = new System.Drawing.Point(61, 151);
             this.outputBox.Name = "outputBox";
             this.outputBox.Size = new System.Drawing.Size(482, 21);
             this.outputBox.TabIndex = 3;
@@ -194,28 +216,11 @@
             this.startButton.UseVisualStyleBackColor = true;
             this.startButton.Click += new System.EventHandler(this.startButton_Click);
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(398, 23);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(25, 13);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "Api:";
-            // 
-            // apiBox
-            // 
-            this.apiBox.FormattingEnabled = true;
-            this.apiBox.Location = new System.Drawing.Point(430, 19);
-            this.apiBox.Name = "apiBox";
-            this.apiBox.Size = new System.Drawing.Size(113, 21);
-            this.apiBox.TabIndex = 5;
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(574, 362);
+            this.ClientSize = new System.Drawing.Size(582, 367);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
