@@ -39,8 +39,8 @@ namespace RtStream
 		RtAudioManagerException() : ApplicationException() { };
 
         RtAudioManagerException(String^ message) : ApplicationException(message) { };
-        
-        RtAudioManagerException(String^ message, Exception^ innerException) : ApplicationException(message, innerException) { }; 
+
+        RtAudioManagerException(String^ message, Exception^ innerException) : ApplicationException(message, innerException) { };
 
     }; // end RtAudioManagerException
 
@@ -52,8 +52,8 @@ namespace RtStream
 		RtAudioManagerApiException() : RtAudioException() { };
 
 		RtAudioManagerApiException(String^ message) : RtAudioException(message) { };
-        
-        RtAudioManagerApiException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { }; 
+
+        RtAudioManagerApiException(String^ message, Exception^ innerException) : RtAudioException(message, innerException) { };
 
     }; // end RtAudioManagerApiException
 
@@ -80,6 +80,9 @@ namespace RtStream
 
 		// Default Destructor
 		~RtAudioManager();
+
+		// Start a timer to watch for changes in the number of devices
+		void enableDeviceWatcher(int interval);
 
 		// Fires when a device is added or removed from the system
 		event EventHandler^ DeviceEnumerationChanged;
@@ -144,7 +147,7 @@ namespace RtStream
 		RtStreamMixer^ _createMixer(List<Dictionary<String^, String^>^>^ inputs, int output, RtStreamMixer^ mixer);
 
 		// Enumerate Devices
-		bool EnumerateDevices();	
+		bool EnumerateDevices();
 
 		// Enumeration event handler
 		void OnEnumerateTimer(Object^ sender, ElapsedEventArgs^ args);

@@ -49,7 +49,7 @@ namespace RtStream
 	} // end RtAudioManager
 
 	// Default Constructor
-	RtAudioManager::~RtAudioManager()	
+	RtAudioManager::~RtAudioManager()
 	{
 		logger->Trace("~RtAudioManager called.");
 
@@ -62,6 +62,8 @@ namespace RtStream
 
 	void RtAudioManager::initialize()
 	{
+		enumerateTimer = nullptr;
+
 		// Initialize the logger
 		logger = EventLoggerManager::getLogger("RtAudioManager");
 		logger->Trace("Starting initialize.");
@@ -79,28 +81,42 @@ namespace RtStream
 		logger->Trace("Calling EnumerateDevices.");
 		EnumerateDevices();
 
-		// Reenumerate the devices every half second
-		logger->Trace("Setting up enumerateTimer.");
-		enumerateTimer = gcnew System::Timers::Timer(500);
-		enumerateTimer->Elapsed += gcnew ElapsedEventHandler(this, &RtAudioManager::OnEnumerateTimer);
-
-		//logger->Trace("Starting enumerateTimer.");
-		//enumerateTimer->Start();
-
 		logger->Debug("Finished initialize.");
 	} // end initialize
+
+	// Start a timer to watch for changes in the number of devices
+	void RtAudioManager::enableDeviceWatcher(int interval)
+	{
+		// Reenumerate the devices every 'interval' milliseconds
+		if(enumerateTimer == nullptr)
+		{
+			logger->Trace("Creating enumerateTimer.");
+			enumerateTimer = gcnew System::Timers::Timer();
+			enumerateTimer->Elapsed += gcnew ElapsedEventHandler(this, &RtAudioManager::OnEnumerateTimer);
+		} // end if
+
+		logger->Trace("Setting enumerateTimer interval.");
+		if(enumerateTimer->Enabled)
+		{
+			enumerateTimer->Stop();
+		} // end if
+		enumerateTimer->Interval = interval;
+
+		logger->Trace("Starting enumerateTimer.");
+		enumerateTimer->Start();
+	} // end enableDeviceWatcher
 
 	// Finds the input device id by name
 	int RtAudioManager::FindInputDeviceByName(String^ name)
 	{
 		logger->Trace("FindInputDeviceByName(String^ name) called.");
 
-		int devID = -1;	
+		int devID = -1;
 		for each(KeyValuePair<String^, int>^ kvp in InputDevices)
 		{
 			// Case insensitive search
 			logger->Trace("Searching \"{0}\" for match with \"{1}\".", kvp->Key, name);
-			if (kvp->Key->IndexOf(name, StringComparison::OrdinalIgnoreCase) >= 0)	
+			if (kvp->Key->IndexOf(name, StringComparison::OrdinalIgnoreCase) >= 0)
 			{
 				logger->Debug("Found \"{0}\" with id {1}", kvp->Key, kvp->Value);
 				devID = kvp->Value;
@@ -116,11 +132,11 @@ namespace RtStream
 	{
 		logger->Trace("FindOutputDeviceByName(String^ name) called.");
 
-		int devID = -1;	
+		int devID = -1;
 		for each(KeyValuePair<String^, int>^ kvp in OutputDevices)
 		{
 			logger->Trace("Searching \"{0}\" for match with \"{1}\".", kvp->Key, name);
-			if (kvp->Key->Contains(name))	
+			if (kvp->Key->Contains(name))
 			{
 				logger->Debug("Found \"{0}\" with id {1}", kvp->Key, kvp->Value);
 				devID = kvp->Value;
@@ -132,7 +148,7 @@ namespace RtStream
 	} // end FindOutputDeviceByName
 
 	// Gets the device information for the given device id
-	::RtAudioNet::RtAudio::DeviceInfo^ RtAudioManager::GetDeviceInfo(int devID)	
+	::RtAudioNet::RtAudio::DeviceInfo^ RtAudioManager::GetDeviceInfo(int devID)
 	{
 		logger->Trace("GetDeviceInfo(int devID) called.");
 		return rtaudio->getDeviceInfo((unsigned int) devID);
@@ -259,7 +275,7 @@ namespace RtStream
 	{
 		logger->Trace("EnumerateDevices() called.");
 
-		// Update DeviceCount	
+		// Update DeviceCount
 		logger->Trace("Calling rtaudio->getDeviceCount().");
 		DeviceCount = rtaudio->getDeviceCount();
 
@@ -300,14 +316,21 @@ namespace RtStream
 	{
 		logger->Trace("OnEnumerateTimer(Object^ sender, ElapsedEventArgs^ args) called.");
 
-		int devCount = DeviceCount;
-		bool changed = EnumerateDevices();
-
-		logger->Trace("Checking devCount: {0}, DeviceCount: {1}, changed: {2}", devCount, DeviceCount, changed);
-		if ((devCount != DeviceCount) || changed)
+		if(DeviceCount != rtaudio->getDeviceCount())
 		{
-			logger->Debug("Firing DeviceEnumerationChanged!");
-			DeviceEnumerationChanged(this, gcnew EventArgs());
+			enumerateTimer->Stop();
+
+			int devCount = DeviceCount;
+			bool changed = EnumerateDevices();
+
+			logger->Trace("Checking devCount: {0}, DeviceCount: {1}, changed: {2}", devCount, DeviceCount, changed);
+			if ((devCount != DeviceCount) || changed)
+			{
+				logger->Debug("Firing DeviceEnumerationChanged!");
+				DeviceEnumerationChanged(this, gcnew EventArgs());
+			} // end if
+
+			enumerateTimer->Start();
 		} // end if
 	} // end OnEnumerateTimer
 
@@ -327,7 +350,7 @@ namespace RtStream
 			// Check for more than our maximum number of channels
 			if (inputStream->Format->channels > 2)
 			{
-				logger->Warn("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
+				logger->Warn("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).",
 					inputStream->Format->channels);
 				inputStream->Format->channels = 2;
 			}
@@ -338,7 +361,7 @@ namespace RtStream
 
 			try
 			{
-				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name,
 					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample);
 				mixer->AddInputStream(inputStream);
 			}
@@ -382,7 +405,7 @@ namespace RtStream
 			// Check for more than our maximum number of channels
 			if (inputStream->Format->channels > 2)
 			{
-				logger->Warn(String::Format("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
+				logger->Warn(String::Format("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).",
 					inputStream->Format->channels));
 				inputStream->Format->channels = 2;
 			}
@@ -393,7 +416,7 @@ namespace RtStream
 
 			try
 			{
-				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name,
 					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample);
 				mixer->AddInputStream(inputStream);
 			}
@@ -438,7 +461,7 @@ namespace RtStream
 			// Check for more than our maximum number of channels
 			if (inputStream->Format->channels > 2)
 			{
-				logger->Warn("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).", 
+				logger->Warn("Detected {0} channels. This is greater than our maximum number of channels (2). Resetting to maximum (2).",
 					inputStream->Format->channels);
 				inputStream->Format->channels = 2;
 			}
@@ -449,7 +472,7 @@ namespace RtStream
 
 			try
 			{
-				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name, 
+				logger->Debug("Adding inputStream {0} with Format: channels: {1}, sampleRate: {2}, bitsPerSample: {3}.", inputStream->Name,
 					inputStream->Format->channels, inputStream->Format->sampleRate, inputStream->Format->bitsPerSample);
 				mixer->AddInputStream(inputStream, System::Convert::ToSingle(input["gain"]), System::Convert::ToSingle(input["pan"]));
 			}
