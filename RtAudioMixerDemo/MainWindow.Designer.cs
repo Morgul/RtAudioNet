@@ -74,7 +74,6 @@
             this.apiBox.Name = "apiBox";
             this.apiBox.Size = new System.Drawing.Size(113, 21);
             this.apiBox.TabIndex = 5;
-            this.apiBox.SelectedIndexChanged += new System.EventHandler(this.apiBox_SelectedIndexChanged);
             // 
             // label5
             // 
