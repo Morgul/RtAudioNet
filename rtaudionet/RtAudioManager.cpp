@@ -455,7 +455,17 @@ namespace RtStream
 
 			RtInputStream^ inputStream = gcnew RtInputStream(512);
 			logger->Debug("Setting inputStream name to \"Input {0}\".", input["id"]);
-			inputStream->Name = String::Format("Input {0}", input["id"]);
+
+			// Look for a name for this input in the dictionary, otherwise, name it appropriately.
+			if (input->ContainsKey("name");
+			{
+				inputStream->Name = input["name"];
+			}
+			else
+			{
+				inputStream->Name = String::Format("Input with ID {0}", input["id"]);
+			} // end try/catch
+
 			inputStream->selectInputDevice(System::Convert::ToInt32(input["id"]));
 
 			// Check for more than our maximum number of channels
