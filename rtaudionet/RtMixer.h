@@ -31,6 +31,14 @@ using namespace System::Collections::Generic;
 
 namespace RtStream
 {
+	// BufferUnderrun Event Args
+	public ref class BufferUnderrunEventArgs : EventArgs
+	{
+	public:
+		property int ExpectedBufferSize;
+		property int ActualBufferSize;
+	}; // end BufferUnderrunEventArgs
+
 	// Wraps an RtInputStream, and provides Pan/Gain support.
 	public ref class RtMixerInput
 	{
@@ -86,6 +94,9 @@ namespace RtStream
 
 		// Stop the mixer
 		virtual void Stop();
+
+		// Called whenever the RtAudio callback is fired.
+		event EventHandler<BufferUnderrunEventArgs^>^ BufferUnderrun;
 
 		// Is the mixer currently running?
 		bool IsRunning();
