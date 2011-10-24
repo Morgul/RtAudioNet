@@ -457,7 +457,7 @@ namespace RtStream
 			logger->Debug("Setting inputStream name to \"Input {0}\".", input["id"]);
 
 			// Look for a name for this input in the dictionary, otherwise, name it appropriately.
-			if (input->ContainsKey("name");
+			if (input->ContainsKey("name"))
 			{
 				inputStream->Name = input["name"];
 			}

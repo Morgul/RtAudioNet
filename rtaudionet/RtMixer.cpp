@@ -312,11 +312,21 @@ void RtStreamMixer::callbackHandler(Object^ sender, EventArgs^ e)
 	for each(KeyValuePair<String^, RtMixerInput^>^ kvp in inputs)
 	{
 		RtInputStream^ inputStream = kvp->Value->InputStream;
-		array<float>^ inputBuff = gcnew array<float>(outputStream->Frames * inputStream->Format->channels);
+		int toRead = outputStream->Frames * inputStream->Format->channels;
+		array<float>^ inputBuff = gcnew array<float>(toRead);
 		int floatsRead = inputStream->Read(inputBuff);
 		float gain = kvp->Value->Gain;
 		float leftGain = gain;
 		float rightGain = gain;
+
+		if (toRead != floatsRead)
+		{
+			BufferUnderrunEventArgs^ args = gcnew BufferUnderrunEventArgs();
+			args->ExpectedBufferSize = toRead;
+			args->ActualBufferSize = floatsRead;
+
+			BufferUnderrun(this, args);
+		} // end if
 
 		// Currently, we only support pan on 2 channel inputs
 		if (inputStream->Format->channels == 2)

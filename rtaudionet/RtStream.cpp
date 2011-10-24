@@ -93,7 +93,7 @@ namespace RtStream
 
 		if (read != count)
 		{
-			logger->Debug("Stream \"{0}\": Buffer Underrun detected!", Name);
+			logger->Trace("Stream \"{0}\": Buffer Underrun detected!", Name);
 			BufferUnderrun(this, gcnew EventArgs());
 		} // end if
 
@@ -345,7 +345,7 @@ namespace RtStream
 
 		if (dataRead != count)
 		{
-			logger->Debug("Stream \"{0}\": Buffer Underrun detected!", Name);
+			logger->Trace("Stream \"{0}\": Buffer Underrun detected!", Name);
 			BufferUnderrun(this, gcnew EventArgs());
 		} // end if
 
