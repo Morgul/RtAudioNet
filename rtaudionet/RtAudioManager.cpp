@@ -157,6 +157,12 @@ namespace RtStream
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<int>^ inputs, int output)
 	{
+		return CreateMixer(inputs, output, true);
+	} // end CreateMixer
+
+	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::CreateMixer(List<int>^ inputs, int output, bool useDuplex)
+	{
 		logger->Trace("CreateMixer(List<int>^ inputs, int output) called.");
 
 		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
@@ -179,6 +185,12 @@ namespace RtStream
 
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<String^>^ inputs, String^ output)
+	{
+		return CreateMixer(inputs, output, true);
+	} // end CreateMixer
+
+	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::CreateMixer(List<String^>^ inputs, String^ output, bool useDuplex)
 	{
 		logger->Trace("CreateMixer(List<String^>^ inputs, String^ output) called.");
 
@@ -203,6 +215,12 @@ namespace RtStream
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<Dictionary<String^, String^>^>^ inputs, int output)
 	{
+		return CreateMixer(inputs, output, true);
+	} // end CreateMixer
+
+	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::CreateMixer(List<Dictionary<String^, String^>^>^ inputs, int output, bool useDuplex)
+	{
 		logger->Trace("CreateMixer(List<Dictionary<String^, String^>^>^ inputs, int output) called.");
 
 		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
@@ -224,6 +242,12 @@ namespace RtStream
 
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<int>^ inputs, int output, int sampleRate)
+	{
+		return CreateMixer(inputs, output, sampleRate, true);
+	} // end CreateMixer
+
+	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::CreateMixer(List<int>^ inputs, int output, int sampleRate, bool useDuplex)
 	{
 		logger->Trace("CreateMixer(List<int>^ inputs, int output, int sampleRate) called.");
 
@@ -248,6 +272,12 @@ namespace RtStream
 
 	// Creates and returns a mixer based on the inputs and outputs
 	RtStreamMixer^ RtAudioManager::CreateMixer(List<String^>^ inputs, String^ output, int sampleRate)
+	{
+		return CreateMixer(inputs, output, sampleRate, true);
+	} // end CreateMixer
+
+	// Creates and returns a mixer based on the inputs and outputs
+	RtStreamMixer^ RtAudioManager::CreateMixer(List<String^>^ inputs, String^ output, int sampleRate, bool useDuplex)
 	{
 		logger->Trace("CreateMixer(List<String^>^ inputs, String^ output, int sampleRate) called.");
 
