@@ -103,16 +103,31 @@ namespace RtStream
 		RtStreamMixer^ CreateMixer(List<int>^ inputs, int output);
 
 		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^ CreateMixer(List<int>^ inputs, int output, bool useDuplex);
+
+		// Creates and returns a mixer based on the inputs and outputs
 		RtStreamMixer^ CreateMixer(List<String^>^ inputs, String^ output);
+
+		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^ CreateMixer(List<String^>^ inputs, String^ output, bool useDuplex);
 
 		// Creates and returns a mixer based on the inputs and outputs
 		RtStreamMixer^ CreateMixer(List<Dictionary<String^, String^>^>^ inputs, int output);
 
 		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^ CreateMixer(List<Dictionary<String^, String^>^>^ inputs, int output, bool useDuplex);
+
+		// Creates and returns a mixer based on the inputs and outputs
 		RtStreamMixer^ CreateMixer(List<int>^ inputs, int output, int sampleRate);
 
 		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^ CreateMixer(List<int>^ inputs, int output, int sampleRate, bool useDuplex);
+
+		// Creates and returns a mixer based on the inputs and outputs
 		RtStreamMixer^ CreateMixer(List<String^>^ inputs, String^ output, int sampleRate);
+
+		// Creates and returns a mixer based on the inputs and outputs
+		RtStreamMixer^ CreateMixer(List<String^>^ inputs, String^ output, int sampleRate, bool useDuplex);
 
 		// Returns the current Api
 		::RtAudioNet::RtAudio::Api GetCurrentApi() {return _api;};
