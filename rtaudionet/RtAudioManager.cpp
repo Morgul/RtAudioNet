@@ -168,14 +168,14 @@ namespace RtStream
 		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
 		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
 		RtStreamMixer^ mixer = nullptr;
-		if (inputs->Count < 2)
+		if (inputs->Count < 2 && useDuplex)
 		{
-			logger->Debug("Less than 2 inputs; Creating RtDuplexMixer.");
+			logger->Debug("Creating RtDuplexMixer.");
 			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
 		}
 		else
 		{
-			logger->Debug("More than 2 inputs; Creating RtStreamMixer.");
+			logger->Debug("Creating RtStreamMixer.");
 			mixer = gcnew RtStreamMixer();
 		} // end if
 
@@ -197,14 +197,14 @@ namespace RtStream
 		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
 		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
 		RtStreamMixer^ mixer = nullptr;
-		if (inputs->Count < 2)
+		if (inputs->Count < 2 && useDuplex)
 		{
-			logger->Debug("Less than 2 inputs; Creating RtDuplexMixer.");
+			logger->Debug("Creating RtDuplexMixer.");
 			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
 		}
 		else
 		{
-			logger->Debug("More than 2 inputs; Creating RtStreamMixer.");
+			logger->Debug("Creating RtStreamMixer.");
 			mixer = gcnew RtStreamMixer();
 		} // end if
 
@@ -226,13 +226,14 @@ namespace RtStream
 		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
 		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
 		RtStreamMixer^ mixer = nullptr;
-		if (inputs->Count < 2)
+		if (inputs->Count < 2 && useDuplex)
 		{
-			logger->Debug("Less than 2 inputs; Creating RtDuplexMixer.");
+			logger->Debug("Creating RtDuplexMixer.");
 			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
 		}
 		else
 		{
+			logger->Debug("Creating RtStreamMixer.");
 			mixer = gcnew RtStreamMixer();
 		} // end if
 
@@ -254,14 +255,14 @@ namespace RtStream
 		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
 		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
 		RtStreamMixer^ mixer = nullptr;
-		if (inputs->Count < 2)
+		if (inputs->Count < 2 && useDuplex)
 		{
-			logger->Debug("Less than 2 inputs; Creating RtDuplexMixer.");
+			logger->Debug("Creating RtDuplexMixer.");
 			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
 		}
 		else
 		{
-			logger->Debug("More than 2 inputs; Creating RtStreamMixer.");
+			logger->Debug("Creating RtStreamMixer.");
 			mixer = gcnew RtStreamMixer();
 		} // end if
 		mixer->Format->sampleRate = sampleRate;
@@ -284,14 +285,14 @@ namespace RtStream
 		// See how many inputs we have. If we only have a single input (or no inputs), then it's much more performant to use
 		// a RtDuplexMixer. This greatly improves performance over using the standard RtStreamMixer class.
 		RtStreamMixer^ mixer = nullptr;
-		if (inputs->Count < 2)
+		if (inputs->Count < 2 && useDuplex)
 		{
-			logger->Debug("Less than 2 inputs; Creating RtDuplexMixer.");
+			logger->Debug("Creating RtDuplexMixer.");
 			mixer = (RtStreamMixer^) gcnew RtDuplexMixer();
 		}
 		else
 		{
-			logger->Debug("More than 2 inputs; Creating RtStreamMixer.");
+			logger->Debug("Creating RtStreamMixer.");
 			mixer = gcnew RtStreamMixer();
 		} // end if
 		mixer->Format->sampleRate = sampleRate;
